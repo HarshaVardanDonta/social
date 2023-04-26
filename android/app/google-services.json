@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "499532090166",
+    "project_id": "social-43e75",
+    "storage_bucket": "social-43e75.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:499532090166:android:f751d9421154c0244b0197",
+        "android_client_info": {
+          "package_name": "com.example.socail"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "499532090166-2jqj017606clvd2ic4ripqm6gam8855i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrvxf7XpW8Pe-zlGDCCI_kG0Szc8s6Xhk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "499532090166-2jqj017606clvd2ic4ripqm6gam8855i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
