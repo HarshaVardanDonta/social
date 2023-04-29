@@ -8,4 +8,4 @@ Color button = Color(0xff53354A);
 Color text = Color(0xffE84545);
 
 String base_url =
-    'https://503c-2405-201-c014-8178-60ed-5e8d-f360-3ed8.ngrok-free.app';
+    'http://ec2-43-205-240-108.ap-south-1.compute.amazonaws.com:8055';
