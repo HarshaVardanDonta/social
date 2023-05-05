@@ -232,7 +232,7 @@ class _AddPostState extends State<AddPost> {
                   Center(
                     child: Container(
                       decoration: BoxDecoration(
-                          color: Colors.black,
+                          color: container,
                           borderRadius: BorderRadius.circular(10)),
                       height: 150,
                       width: 200,

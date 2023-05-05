@@ -85,7 +85,7 @@ class PostService {
         List<dynamic> body = jsonDecode(response.body);
         List<Comment> comments =
             body.map((dynamic item) => Comment.fromJson(item)).toList();
-        comments.sort((a, b) => b.id!.compareTo(a.id!));
+        comments.sort((a, b) => b.id.compareTo(a.id));
         return comments;
       } else {
         throw "Can't get comments";

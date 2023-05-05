@@ -100,6 +100,11 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
                     itemCount: allUsers.length,
                     itemBuilder: (context, index) {
                       return ListTile(
+                        leading: CircleAvatar(
+                          radius: 25,
+                          backgroundImage:
+                              NetworkImage(allUsers[index].avatar!),
+                        ),
                         title: CustomText(
                           content: allUsers[index].name,
                           size: 20,
