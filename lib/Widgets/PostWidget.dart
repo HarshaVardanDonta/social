@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously, iterable_contains_unrelated_type, avoid_function_literals_in_foreach_calls, avoid_print
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:socail/Models/Comment.dart';
@@ -56,6 +57,7 @@ class _PostWidgetState extends State<PostWidget> {
   TextEditingController commentController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    User? currentUser = FirebaseAuth.instance.currentUser;
     if (!gotLikes) {
       getLikes();
       return Container(
@@ -251,13 +253,14 @@ class _PostWidgetState extends State<PostWidget> {
                       IconButton(
                         onPressed: () async {
                           if (commentController.text.isNotEmpty) {
+                            UserObj? commentUser = await UserService.getUser();
                             DateTime createdDate = DateTime.now();
                             var status = await PostService.addComment(
                               id: widget.id,
                               comment: commentController.text,
-                              byUser: widget.user,
-                              avatar: postUser!.avatar!,
-                              userName: widget.userName,
+                              byUser: commentUser!.firebaseUid,
+                              avatar: commentUser.avatar.toString(),
+                              userName: commentUser.name,
                               createdDate: createdDate.toString(),
                             );
                             if (status) {

@@ -48,10 +48,14 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
     });
   }
 
+  UserObj? currentDbUser;
   getExistingFriends() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    existingFriends = await FriendService.getFriends(user!.uid);
-    print(" existing friends : $existingFriends");
+    currentDbUser = await UserService.getUser();
+    existingFriends =
+        await FriendService.getFriends(currentDbUser!.firebaseUid);
+    setState(() {
+      gotExisting = true;
+    });
   }
 
   @override
@@ -189,7 +193,10 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
                     itemBuilder: (context, index) {
                       return ListTile(
                         title: CustomText(
-                          content: existingFriends[index].userName,
+                          content: (currentDbUser!.firebaseUid ==
+                                  existingFriends[index].userId)
+                              ? existingFriends[index].friendUserName
+                              : existingFriends[index].userName,
                           size: 20,
                           weight: FontWeight.bold,
                           color: text,
