@@ -5,7 +5,6 @@ import 'package:socail/Models/Comment.dart';
 import 'package:socail/Models/Post.dart';
 import 'package:socail/Network/PostService.dart';
 import 'package:socail/Widgets/CustomText.dart';
-import 'package:socail/Widgets/ImageViewer.dart';
 import 'package:socail/Widgets/PostWidget.dart';
 import 'package:socail/const.dart';
 
@@ -44,11 +43,25 @@ class _FeedState extends State<Feed> {
                   }
 
                   if (snapshot.hasError) {
-                    return Center(
-                      child: CustomText(
-                        content: snapshot.error.toString(),
-                        color: text,
-                        size: 20,
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error,
+                            color: text,
+                            size: 50,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          CustomText(
+                            content: snapshot.error.toString(),
+                            color: text,
+                            size: 20,
+                          ),
+                        ],
                       ),
                     );
                   }

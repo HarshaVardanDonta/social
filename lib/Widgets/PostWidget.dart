@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:socail/Models/Comment.dart';
 import 'package:socail/Models/Like.dart';
+import 'package:socail/Models/User.dart';
 import 'package:socail/Network/LikeService.dart';
 import 'package:socail/Network/PostService.dart';
+import 'package:socail/Network/UserService.dart';
 import 'package:socail/Screens/AllComments.dart';
 import 'package:socail/Screens/AllLikes.dart';
 import 'package:socail/Widgets/CustomText.dart';
@@ -41,9 +43,11 @@ class PostWidget extends StatefulWidget {
 class _PostWidgetState extends State<PostWidget> {
   bool gotLikes = false;
   List<Like> likes = [];
+  UserObj? postUser;
 
   getLikes() async {
     likes = await LikeService.getPostLikes(widget.id);
+    postUser = await UserService.getUser(userFId: widget.user);
     setState(() {
       gotLikes = true;
     });
@@ -54,6 +58,13 @@ class _PostWidgetState extends State<PostWidget> {
   Widget build(BuildContext context) {
     if (!gotLikes) {
       getLikes();
+      return Container(
+        child: Center(
+          child: CircularProgressIndicator(
+            color: button,
+          ),
+        ),
+      );
     }
     return GestureDetector(
       onTap: () {
@@ -73,16 +84,32 @@ class _PostWidgetState extends State<PostWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  CustomText(
-                    content: widget.title,
-                    color: text,
-                    size: 20,
-                    weight: FontWeight.bold,
-                  ),
-                  CustomText(
-                    content: widget.desc,
-                    color: text,
-                    size: 15,
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 25,
+                        backgroundImage: NetworkImage(postUser!.avatar!),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            content: widget.title,
+                            color: text,
+                            size: 20,
+                            weight: FontWeight.bold,
+                          ),
+                          CustomText(
+                            content: widget.desc,
+                            color: text,
+                            size: 15,
+                          ),
+                        ],
+                      )
+                    ],
                   ),
                   CustomText(
                     content: 'By - ${widget.userName}',
@@ -224,10 +251,15 @@ class _PostWidgetState extends State<PostWidget> {
                       IconButton(
                         onPressed: () async {
                           if (commentController.text.isNotEmpty) {
+                            DateTime createdDate = DateTime.now();
                             var status = await PostService.addComment(
-                                id: widget.id,
-                                comment: commentController.text,
-                                byUser: widget.user);
+                              id: widget.id,
+                              comment: commentController.text,
+                              byUser: widget.user,
+                              avatar: postUser!.avatar!,
+                              userName: widget.userName,
+                              createdDate: createdDate.toString(),
+                            );
                             if (status) {
                               commentController.clear();
                               FocusScope.of(context).unfocus();

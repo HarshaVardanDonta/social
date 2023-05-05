@@ -69,7 +69,7 @@ class _SignUpState extends State<SignUp> {
                       passwordController2.text.isEmpty ||
                       passwordController.text != passwordController2.text) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      backgroundColor: Colors.brown,
+                      backgroundColor: container,
                       duration: const Duration(seconds: 1),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
@@ -87,7 +87,7 @@ class _SignUpState extends State<SignUp> {
                           displayName: nameController.text);
 
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        backgroundColor: Colors.brown,
+                        backgroundColor: container,
                         duration: const Duration(seconds: 1),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
@@ -98,16 +98,19 @@ class _SignUpState extends State<SignUp> {
                           name: nameController.text,
                           email: emailController.text,
                           password: passwordController.text,
-                          firebaseUid: user.user!.uid));
-                      print(user);
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: ((context) => HomePage())));
+                          firebaseUid: user.user!.uid,
+                          avatar:
+                              'https://eu.ui-avatars.com/api/?name=${nameController.text}&size=250'));
+                      if (userObj != null) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: ((context) => HomePage())));
+                      }
                     } catch (e) {
                       print(e);
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        backgroundColor: Colors.brown,
+                        backgroundColor: container,
                         duration: const Duration(seconds: 1),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),

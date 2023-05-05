@@ -76,7 +76,7 @@ class _LoginState extends State<Login> {
                   if (emailController.text.isEmpty ||
                       passwordController.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      backgroundColor: Colors.brown,
+                      backgroundColor: container,
                       duration: const Duration(seconds: 1),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
@@ -96,7 +96,7 @@ class _LoginState extends State<Login> {
                     } catch (e) {
                       print(e);
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        backgroundColor: Colors.brown,
+                        backgroundColor: container,
                         duration: const Duration(seconds: 1),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),

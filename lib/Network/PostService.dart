@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
@@ -31,7 +32,13 @@ class PostService {
   }
 
   Future<List<Post>> getAllPosts() {
-    return http.get(Uri.parse('$base_url/post/all')).then((response) {
+    return http.get(Uri.parse('$base_url/post/all')).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        throw TimeoutException(
+            'Unable to reach the Server, Please try after some time!');
+      },
+    ).then((response) {
       if (response.statusCode == 200) {
         List<dynamic> body = jsonDecode(response.body);
         List<Post> posts =
@@ -47,11 +54,17 @@ class PostService {
     required int id,
     required String comment,
     required String byUser,
+    required String avatar,
+    required String userName,
+    required String createdDate,
   }) async {
     var data = {
       'postId': id.toString(),
       'comment': comment,
       'byUser': byUser,
+      'avatar': avatar,
+      'userName': userName,
+      'createdDate': createdDate,
     };
     var response = await http.post(
       Uri.parse('$base_url/comment/addComment'),

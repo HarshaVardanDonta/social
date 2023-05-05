@@ -119,7 +119,13 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
                             if (status == 'Request already exists') {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Request already exists'),
+                                  content: Text('Request already sent'),
+                                ),
+                              );
+                            } else if (status == 'Friend added') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Friend request sent'),
                                 ),
                               );
                             } else if (status == "You can't add yourself") {

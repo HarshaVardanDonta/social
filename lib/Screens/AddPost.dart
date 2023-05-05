@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:socail/Models/Post.dart';
 import 'package:socail/Network/PostService.dart';
 import 'package:socail/Screens/CameraScreen.dart';
@@ -44,46 +45,117 @@ class _AddPostState extends State<AddPost> {
   Widget build(BuildContext context) {
     User? currentUser = FirebaseAuth.instance.currentUser;
 
-    return Scaffold(
-      backgroundColor: back,
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: SingleChildScrollView(
-              child: Stack(
-                children: [
-                  Column(
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: back,
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: SafeArea(
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        CustomTExtField(
-                            controller: titleController, hint: 'Title'),
+                        Container(
+                          // margin: EdgeInsets.all(10),
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: button,
+                            // borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            children: [
+                              TextField(
+                                controller: titleController,
+                                style: GoogleFonts.poppins(
+                                    color: text, fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: 'Title',
+                                  hintStyle:
+                                      TextStyle(color: text, fontSize: 20),
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              TextField(
+                                controller: descController,
+                                style: GoogleFonts.poppins(
+                                    color: text, fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: 'Description',
+                                  hintStyle:
+                                      TextStyle(color: text, fontSize: 20),
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                height: 400,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: container,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: imageCaptured
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.file(
+                                          File(image.path),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : InkWell(
+                                        onTap: () async {
+                                          await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          CamerScreen()))
+                                              .then((value) {
+                                            setState(() {
+                                              image = value;
+                                              imageCaptured = true;
+                                              // loading = true;
+                                            });
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 400,
+                                          width: double.infinity,
+                                          child: Center(
+                                              child: Icon(
+                                            Icons.add_a_photo,
+                                            color: text,
+                                            size: 40,
+                                          )),
+                                        ),
+                                      ),
+                              ),
+                            ],
+                          ),
+                        ),
                         SizedBox(
                           height: 10,
                         ),
-                        CustomTExtField(
-                            controller: descController, hint: 'Description'),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        CustomElevatedButtom(
-                            content: 'Add Image',
-                            onPressed: () async {
+                        Ink(
+                          color: button,
+                          child: InkWell(
+                            splashColor: container,
+                            onTap: () async {
                               if (titleController.text != '' ||
                                   descController.text != '') {
-                                await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            CamerScreen())).then((value) {
-                                  setState(() {
-                                    image = value;
-                                    imageCaptured = true;
-                                    loading = true;
-                                  });
+                                setState(() {
+                                  loading = true;
                                 });
                                 FirebaseStorage _storage =
                                     FirebaseStorage.instance;
@@ -122,97 +194,63 @@ class _AddPostState extends State<AddPost> {
                                                 Text('Something went wrong')));
                                   }
                                 });
+                                setState(() {
+                                  loading = false;
+                                });
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Please fill all the fields')));
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                        backgroundColor: container,
+                                        behavior: SnackBarBehavior.floating,
+                                        content: CustomText(
+                                          content: 'Please fill all the fields',
+                                          color: Colors.white,
+                                          size: 20,
+                                        )));
                               }
-                            }),
-                        // IconButton(
-                        //     onPressed: () async {
-                        //       if (titleController.text != '' ||
-                        //           descController.text != '') {
-                        //         image = await controller!.takePicture();
-
-                        //         setState(() {
-                        //           imageCaptured = true;
-                        //           loading = true;
-                        //         });
-
-                        //         FirebaseStorage _storage =
-                        //             FirebaseStorage.instance;
-                        //         await _storage
-                        //             .ref(
-                        //                 '${currentUser!.uid}/${DateTime.now().millisecondsSinceEpoch}')
-                        //             .putFile(File(image.path))
-                        //             .then((value) async {
-                        //           String url = await value.ref.getDownloadURL();
-                        //           var res = await PostService.createPost(Post(
-                        //             title: titleController.text,
-                        //             desc: descController.text,
-                        //             imageUrl: url,
-                        //             byUser: currentUser.uid,
-                        //           ));
-
-                        //           if (res) {
-                        //             setState(() {
-                        //               titleController.text = '';
-                        //               descController.text = '';
-                        //               imageCaptured = false;
-                        //               loading = false;
-                        //             });
-                        //             ScaffoldMessenger.of(context).showSnackBar(
-                        //                 SnackBar(
-                        //                     content: Text(
-                        //                         'Post added successfully')));
-                        //           } else {
-                        //             setState(() {
-                        //               loading = false;
-                        //             });
-                        //             ScaffoldMessenger.of(context).showSnackBar(
-                        //                 SnackBar(
-                        //                     content:
-                        //                         Text('Something went wrong')));
-                        //           }
-                        //         });
-                        //       } else {
-                        //         ScaffoldMessenger.of(context).showSnackBar(
-                        //             SnackBar(
-                        //                 content: Text(
-                        //                     'Please fill all the fields')));
-                        //       }
-                        //     },
-                        //     icon: Icon(
-                        //       Icons.camera_alt,
-                        //       size: 30,
-                        //       color: text,
-                        //     )),
-                      ]),
-                  if (loading)
-                    Center(
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(10)),
-                        height: 150,
-                        width: 200,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(
-                              color: text,
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  // color: button,
+                                  ),
+                              child: Center(
+                                child: CustomText(
+                                  content: 'Add Post',
+                                  size: 20,
+                                  color: text,
+                                  weight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            CustomText(content: 'loading...', color: text),
-                          ],
+                          ),
                         ),
+                      ]),
+                ),
+                if (loading)
+                  Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(10)),
+                      height: 150,
+                      width: 200,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            color: text,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          CustomText(content: 'loading...', color: text),
+                        ],
                       ),
-                    )
-                ],
-              ),
+                    ),
+                  )
+              ],
             ),
           ),
         ),

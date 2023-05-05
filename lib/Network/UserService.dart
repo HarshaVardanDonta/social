@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:socail/const.dart';
 
@@ -14,6 +15,7 @@ class UserService {
       'email': user.email,
       'password': user.password,
       'firebaseUid': user.firebaseUid,
+      'avatar': user.avatar,
     };
     var response = await http.post(
       Uri.parse('$base_url/user/register'),
@@ -25,13 +27,12 @@ class UserService {
     print('res is ${response.body}');
   }
 
-  static Future<UserObj> getUser() async {
-    var response = await http.get(Uri.parse('${base_url}/users/1'));
-    if (response.statusCode == 200) {
-      return UserObj.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load user');
-    }
+  static getUser({String? userFId}) async {
+    String firebaseId = FirebaseAuth.instance.currentUser!.uid;
+    var response = await http
+        .get(Uri.parse('${base_url}/user/findUser/${userFId ?? firebaseId}'));
+    print(response.body);
+    return UserObj.fromJson(json.decode(response.body));
   }
 
   static Future<List<UserObj>> allUsers() async {
@@ -55,6 +56,23 @@ class UserService {
       return UserObj.fromJson(json.decode(response.body));
     } else {
       return UserObj(name: '', email: '', password: '', firebaseUid: '');
+    }
+  }
+
+  static setProfile(String url) async {
+    String firebaseId = FirebaseAuth.instance.currentUser!.uid;
+    var data = {
+      'url': url,
+    };
+    var response = await http.post(
+      Uri.parse('$base_url/user/addAvatar/$firebaseId'),
+      body: data,
+    );
+    print('res is ${response.body}');
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 }

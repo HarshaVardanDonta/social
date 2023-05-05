@@ -1,7 +1,13 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables
 
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:socail/Models/User.dart';
+import 'package:socail/Network/UserService.dart';
 import 'package:socail/Screens/AddPost.dart';
 import 'package:socail/Screens/Feed.dart';
 import 'package:socail/Screens/Friends.dart';
@@ -29,14 +35,104 @@ class _HomePageState extends State<HomePage> {
   bool homeSelected = true;
   bool addSelected = false;
   bool friendsSelected = false;
+  UserObj? dbUser;
+  bool gotUser = false;
+  getUser() async {
+    dbUser = await UserService.getUser();
+    print(dbUser!.name);
+    setState(() {
+      gotUser = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!gotUser) {
+      getUser();
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            color: button,
+          ),
+        ),
+      );
+    }
     return Scaffold(
         drawer: Drawer(
           backgroundColor: container,
           child: SafeArea(
             child: Column(
               children: [
+                SizedBox(
+                  height: 20,
+                ),
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 68,
+                      child: CircleAvatar(
+                        radius: 65,
+                        backgroundImage: NetworkImage(dbUser!.avatar ??
+                            'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: button,
+                        child: IconButton(
+                          onPressed: () async {
+                            User? currentUser =
+                                FirebaseAuth.instance.currentUser;
+                            ImagePicker picker = ImagePicker();
+                            var pickedImage = await picker.pickImage(
+                                source: ImageSource.gallery);
+                            FirebaseStorage _storage = FirebaseStorage.instance;
+                            await _storage
+                                .ref('avatars/${currentUser!.uid}')
+                                .putFile(File(pickedImage!.path))
+                                .then((value) async {
+                              String url = await value.ref.getDownloadURL();
+                              var status = await UserService.setProfile(url);
+                              if (status) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        behavior: SnackBarBehavior.floating,
+                                        content: CustomText(
+                                            content:
+                                                'Profile picture updated')));
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        behavior: SnackBarBehavior.floating,
+                                        content: CustomText(
+                                            content:
+                                                'Profile picture not updated')));
+                              }
+                            });
+                          },
+                          icon: Icon(
+                            Icons.edit,
+                            color: text,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                CustomText(
+                  content: dbUser!.name,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
                 CustomElevatedButtom(
                     content: 'Sign out',
                     onPressed: () async {
