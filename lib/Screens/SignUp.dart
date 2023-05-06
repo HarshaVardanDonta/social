@@ -85,7 +85,13 @@ class _SignUpState extends State<SignUp> {
                       User firebaseUSer = FirebaseAuth.instance.currentUser!;
                       firebaseUSer.updateProfile(
                           displayName: nameController.text);
-
+                      var userObj = await UserService.registerUser(UserObj(
+                          name: nameController.text,
+                          email: emailController.text,
+                          password: passwordController.text,
+                          firebaseUid: user.user!.uid,
+                          avatar:
+                              'https://eu.ui-avatars.com/api/?name=${nameController.text}&size=250'));
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         backgroundColor: container,
                         duration: const Duration(seconds: 1),
@@ -94,13 +100,7 @@ class _SignUpState extends State<SignUp> {
                         behavior: SnackBarBehavior.floating,
                         content: Text('success'),
                       ));
-                      var userObj = await UserService.registerUser(UserObj(
-                          name: nameController.text,
-                          email: emailController.text,
-                          password: passwordController.text,
-                          firebaseUid: user.user!.uid,
-                          avatar:
-                              'https://eu.ui-avatars.com/api/?name=${nameController.text}&size=250'));
+
                       if (userObj != null) {
                         Navigator.pushReplacement(
                             context,

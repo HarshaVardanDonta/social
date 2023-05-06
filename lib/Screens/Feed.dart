@@ -95,7 +95,6 @@ class _FeedState extends State<Feed> {
                               desc: posts[index].desc,
                               url: posts[index].imageUrl,
                               user: posts[index].byUser,
-                              comments: snapshot.data!,
                             );
                           }));
                     },

@@ -24,7 +24,7 @@ class PostWidget extends StatefulWidget {
   String url;
   String user;
   String userName;
-  List<Comment> comments;
+  CallbackAction? callbackAction;
   // List<Like> likes;
   PostWidget({
     super.key,
@@ -33,8 +33,8 @@ class PostWidget extends StatefulWidget {
     required this.desc,
     required this.url,
     required this.user,
-    required this.comments,
     required this.userName,
+    this.callbackAction,
   });
 
   @override
@@ -43,7 +43,9 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget> {
   bool gotLikes = false;
+  bool gotComments = false;
   List<Like> likes = [];
+  List<Comment> comments = [];
   UserObj? postUser;
 
   getLikes() async {
@@ -51,6 +53,13 @@ class _PostWidgetState extends State<PostWidget> {
     postUser = await UserService.getUser(userFId: widget.user);
     setState(() {
       gotLikes = true;
+    });
+  }
+
+  getComments() async {
+    comments = await PostService.getComments(widget.id);
+    setState(() {
+      gotComments = true;
     });
   }
 
@@ -68,6 +77,17 @@ class _PostWidgetState extends State<PostWidget> {
         ),
       );
     }
+    if (!gotComments) {
+      getComments();
+      return Container(
+        child: Center(
+          child: CircularProgressIndicator(
+            color: button,
+          ),
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -183,6 +203,9 @@ class _PostWidgetState extends State<PostWidget> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text("already liked")));
                                 }
+                                setState(() {
+                                  getLikes();
+                                });
                               },
                               icon: Icon(
                                 Icons.favorite,
@@ -203,8 +226,8 @@ class _PostWidgetState extends State<PostWidget> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: ((context) => AllComments(
-                                          comments: widget.comments))));
+                                      builder: ((context) =>
+                                          AllComments(comments: comments))));
                             },
                             icon: Icon(
                               Icons.comment,
@@ -212,7 +235,7 @@ class _PostWidgetState extends State<PostWidget> {
                             ),
                           ),
                           CustomText(
-                            content: '${widget.comments.length}',
+                            content: '${comments.length}',
                             color: text,
                           ),
                         ],
@@ -268,6 +291,9 @@ class _PostWidgetState extends State<PostWidget> {
                               FocusScope.of(context).unfocus();
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text('Comment Added')));
+                              setState(() {
+                                getComments();
+                              });
                             }
                           }
                         },

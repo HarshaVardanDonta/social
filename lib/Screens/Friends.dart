@@ -177,6 +177,15 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
                               user!.uid,
                               pendingRequests[index].friendUserId,
                             );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Request accepted'),
+                              ),
+                            );
+                            setState(() {
+                              getAllPendingRequests();
+                              getExistingFriends();
+                            });
                           },
                           icon: Icon(
                             Icons.done,
