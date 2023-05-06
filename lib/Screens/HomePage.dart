@@ -45,6 +45,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  bool showLoading = false;
+
   @override
   Widget build(BuildContext context) {
     if (!gotUser) {
@@ -57,199 +59,233 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
-    return Scaffold(
-        drawer: Drawer(
-          backgroundColor: container,
-          child: SafeArea(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
-                Stack(
+    return Stack(
+      children: [
+        Scaffold(
+            drawer: Drawer(
+              backgroundColor: container,
+              child: SafeArea(
+                child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 68,
-                      child: CircleAvatar(
-                        radius: 65,
-                        backgroundImage: NetworkImage(dbUser!.avatar ??
-                            'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'),
-                      ),
+                    SizedBox(
+                      height: 20,
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: button,
-                        child: IconButton(
-                          onPressed: () async {
-                            User? currentUser =
-                                FirebaseAuth.instance.currentUser;
-                            ImagePicker picker = ImagePicker();
-                            var pickedImage = await picker.pickImage(
-                                source: ImageSource.gallery);
-                            FirebaseStorage _storage = FirebaseStorage.instance;
-                            await _storage
-                                .ref('avatars/${currentUser!.uid}')
-                                .putFile(File(pickedImage!.path))
-                                .then((value) async {
-                              String url = await value.ref.getDownloadURL();
-                              var status = await UserService.setProfile(url);
-                              if (status) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        behavior: SnackBarBehavior.floating,
-                                        content: CustomText(
-                                            content:
-                                                'Profile picture updated')));
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        behavior: SnackBarBehavior.floating,
-                                        content: CustomText(
-                                            content:
-                                                'Profile picture not updated')));
-                              }
-                            });
-                          },
-                          icon: Icon(
-                            Icons.edit,
-                            color: text,
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 68,
+                          child: CircleAvatar(
+                            radius: 65,
+                            backgroundImage: NetworkImage(dbUser!.avatar ??
+                                'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'),
                           ),
                         ),
-                      ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: button,
+                            child: IconButton(
+                              onPressed: () async {
+                                User? currentUser =
+                                    FirebaseAuth.instance.currentUser;
+                                ImagePicker picker = ImagePicker();
+                                var pickedImage = await picker.pickImage(
+                                    source: ImageSource.gallery,
+                                    imageQuality: 20);
+                                Navigator.pop(context);
+
+                                setState(() {
+                                  showLoading = true;
+                                });
+                                FirebaseStorage _storage =
+                                    FirebaseStorage.instance;
+                                await _storage
+                                    .ref('avatars/${currentUser!.uid}')
+                                    .putFile(File(pickedImage!.path))
+                                    .then((value) async {
+                                  String url = await value.ref.getDownloadURL();
+                                  var status =
+                                      await UserService.setProfile(url);
+                                  if (status) {
+                                    setState(() {
+                                      getUser();
+                                      showLoading = false;
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            behavior: SnackBarBehavior.floating,
+                                            content: CustomText(
+                                                content:
+                                                    'Profile picture updated')));
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            behavior: SnackBarBehavior.floating,
+                                            content: CustomText(
+                                                content:
+                                                    'Profile picture not updated')));
+                                  }
+                                });
+                              },
+                              icon: Icon(
+                                Icons.edit,
+                                color: text,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    CustomText(
+                      content: dbUser!.name,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    CustomElevatedButtom(
+                        content: 'Sign out',
+                        onPressed: () async {
+                          await FirebaseAuth.instance.signOut();
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: ((context) => const Login())));
+                        }),
                   ],
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                CustomText(
-                  content: dbUser!.name,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                CustomElevatedButtom(
-                    content: 'Sign out',
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: ((context) => const Login())));
-                    }),
-              ],
+              ),
             ),
-          ),
-        ),
-        appBar: (activePage == 0)
-            ? AppBar(
-                foregroundColor: text,
-                backgroundColor: back,
-                elevation: 0,
-                title: CustomText(
-                  content: 'Home',
-                  color: text,
-                  weight: FontWeight.bold,
-                  size: 25,
-                ),
-              )
-            : (activePage == 1)
-                ? null
-                : AppBar(
+            appBar: (activePage == 0)
+                ? AppBar(
                     foregroundColor: text,
                     backgroundColor: back,
                     elevation: 0,
                     title: CustomText(
-                      content: 'Friends',
+                      content: 'Home',
                       color: text,
                       weight: FontWeight.bold,
                       size: 25,
                     ),
-                  ),
-        body: PageView(
-          physics: NeverScrollableScrollPhysics(),
-          controller: pageController,
-          onPageChanged: (index) {
-            setState(() {
-              activePage = index;
-            });
-          },
-          children: body,
-        ),
-        backgroundColor: back,
-        bottomNavigationBar: Container(
-          padding: EdgeInsets.all(8),
-          height: 90,
-          decoration: BoxDecoration(
-            color: container,
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  )
+                : (activePage == 1)
+                    ? null
+                    : AppBar(
+                        foregroundColor: text,
+                        backgroundColor: back,
+                        elevation: 0,
+                        title: CustomText(
+                          content: 'Friends',
+                          color: text,
+                          weight: FontWeight.bold,
+                          size: 25,
+                        ),
+                      ),
+            body: PageView(
+              physics: NeverScrollableScrollPhysics(),
+              controller: pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  activePage = index;
+                });
+              },
+              children: body,
+            ),
+            backgroundColor: back,
+            bottomNavigationBar: Container(
+              padding: EdgeInsets.all(8),
+              height: 90,
+              decoration: BoxDecoration(
+                color: container,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15)),
+              ),
+              child: Column(
                 children: [
-                  CustomBottombutton(
-                    selected: homeSelected,
-                    icon: Icons.home,
-                    content: 'Home',
-                    onPressed: () {
-                      setState(() {
-                        homeSelected = true;
-                        addSelected = false;
-                        friendsSelected = false;
-                        activePage = 0;
-                        pageController.animateToPage(0,
-                            duration: Duration(milliseconds: 200),
-                            curve: Curves.ease);
-                      });
-                    },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      CustomBottombutton(
+                        selected: homeSelected,
+                        icon: Icons.home,
+                        content: 'Home',
+                        onPressed: () {
+                          setState(() {
+                            homeSelected = true;
+                            addSelected = false;
+                            friendsSelected = false;
+                            activePage = 0;
+                            pageController.animateToPage(0,
+                                duration: Duration(milliseconds: 200),
+                                curve: Curves.ease);
+                          });
+                        },
+                      ),
+                      CustomBottombutton(
+                        selected: addSelected,
+                        icon: Icons.add,
+                        content: 'Add',
+                        onPressed: () {
+                          setState(() {
+                            addSelected = true;
+                            homeSelected = false;
+                            friendsSelected = false;
+                            activePage = 1;
+                            pageController.animateToPage(1,
+                                duration: Duration(milliseconds: 200),
+                                curve: Curves.ease);
+                          });
+                        },
+                      ),
+                      CustomBottombutton(
+                        selected: friendsSelected,
+                        icon: Icons.people,
+                        content: 'Friends',
+                        onPressed: () {
+                          setState(() {
+                            friendsSelected = true;
+                            homeSelected = false;
+                            addSelected = false;
+                            activePage = 2;
+                            pageController.animateToPage(2,
+                                duration: Duration(milliseconds: 200),
+                                curve: Curves.ease);
+                          });
+                        },
+                      ),
+                    ],
                   ),
-                  CustomBottombutton(
-                    selected: addSelected,
-                    icon: Icons.add,
-                    content: 'Add',
-                    onPressed: () {
-                      setState(() {
-                        addSelected = true;
-                        homeSelected = false;
-                        friendsSelected = false;
-                        activePage = 1;
-                        pageController.animateToPage(1,
-                            duration: Duration(milliseconds: 200),
-                            curve: Curves.ease);
-                      });
-                    },
-                  ),
-                  CustomBottombutton(
-                    selected: friendsSelected,
-                    icon: Icons.people,
-                    content: 'Friends',
-                    onPressed: () {
-                      setState(() {
-                        friendsSelected = true;
-                        homeSelected = false;
-                        addSelected = false;
-                        activePage = 2;
-                        pageController.animateToPage(2,
-                            duration: Duration(milliseconds: 200),
-                            curve: Curves.ease);
-                      });
-                    },
-                  ),
+                  SizedBox(
+                    height: 10,
+                  )
                 ],
               ),
-              SizedBox(
-                height: 10,
-              )
-            ],
+            )),
+        if (showLoading)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              height: 100,
+              width: 200,
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: button,
+                ),
+              ),
+            ),
           ),
-        ));
+      ],
+    );
   }
 }

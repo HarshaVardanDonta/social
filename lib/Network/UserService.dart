@@ -29,9 +29,10 @@ class UserService {
 
   static getUser({String? userFId}) async {
     String firebaseId = FirebaseAuth.instance.currentUser!.uid;
+    print("firebase id is $firebaseId");
     var response = await http
         .get(Uri.parse('${base_url}/user/findUser/${userFId ?? firebaseId}'));
-    print(response.body);
+    print("res is ${response.body}");
     return UserObj.fromJson(json.decode(response.body));
   }
 
