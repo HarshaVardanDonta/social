@@ -39,7 +39,6 @@ class _HomePageState extends State<HomePage> {
   bool gotUser = false;
   getUser() async {
     dbUser = await UserService.getUser();
-    print(dbUser!.name);
     setState(() {
       gotUser = true;
     });

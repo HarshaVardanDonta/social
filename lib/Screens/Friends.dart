@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:socail/Models/Friend.dart';
+import 'package:socail/Models/FriendChip.dart';
 import 'package:socail/Models/User.dart';
 import 'package:socail/Network/FriendService.dart';
 import 'package:socail/Network/UserService.dart';
@@ -200,23 +201,19 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
                     },
                   ),
                 ),
-                Container(
-                  child: ListView.builder(
-                    itemCount: existingFriends.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: CustomText(
-                          content: (currentDbUser!.firebaseUid ==
-                                  existingFriends[index].userId)
-                              ? existingFriends[index].friendUserName
-                              : existingFriends[index].userName,
-                          size: 20,
-                          weight: FontWeight.bold,
-                          color: text,
-                        ),
-                      );
-                    },
-                  ),
+                ListView.builder(
+                  itemCount: existingFriends.length,
+                  itemBuilder: (context, index) {
+                    return FriendChip(
+                        uid: (currentDbUser!.firebaseUid ==
+                                existingFriends[index].userId)
+                            ? existingFriends[index].friendUserId
+                            : existingFriends[index].userId,
+                        name: (currentDbUser!.firebaseUid ==
+                                existingFriends[index].userId)
+                            ? existingFriends[index].friendUserName
+                            : existingFriends[index].userName);
+                  },
                 ),
               ],
             ),

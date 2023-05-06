@@ -76,4 +76,14 @@ class UserService {
       return false;
     }
   }
+
+  static getAvatar(String firebaseUid) async {
+    var response =
+        await http.get(Uri.parse('$base_url/user/getAvatar/$firebaseUid'));
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      return '';
+    }
+  }
 }
