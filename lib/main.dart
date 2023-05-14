@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Social',
       theme: ThemeData(
-        primarySwatch: Colors.brown,
+        primarySwatch: Colors.cyan,
       ),
       home: Login(),
     );

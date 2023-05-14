@@ -62,7 +62,6 @@ class PostService {
       'postId': id.toString(),
       'comment': comment,
       'byUser': byUser,
-      'avatar': avatar,
       'userName': userName,
       'createdDate': createdDate,
     };

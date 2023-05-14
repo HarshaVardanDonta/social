@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, must_be_immutable, file_names
 
 import 'package:flutter/material.dart';
 import 'package:socail/const.dart';

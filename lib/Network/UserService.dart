@@ -31,18 +31,25 @@ class UserService {
     String firebaseId = FirebaseAuth.instance.currentUser!.uid;
     print("firebase id is $firebaseId");
     var response = await http
-        .get(Uri.parse('${base_url}/user/findUser/${userFId ?? firebaseId}'));
+        .get(Uri.parse('${base_url}/user/getUser/${userFId ?? firebaseId}'));
     print("res is ${response.body}");
-    return UserObj.fromJson(json.decode(response.body));
+    if (response.body != '') {
+      UserObj user = UserObj.fromJson(json.decode(response.body));
+      return user;
+    } else {
+      throw Exception('unable to load user');
+    }
   }
 
   static Future<List<UserObj>> allUsers() async {
+    String firebaseId = FirebaseAuth.instance.currentUser!.uid;
     var response = await http.get(Uri.parse('${base_url}/user/allUsers'));
 
     List<UserObj> allUsers;
     allUsers = (json.decode(response.body) as List)
         .map((e) => UserObj.fromJson(e))
         .toList();
+    allUsers.removeWhere((element) => element.firebaseUid == firebaseId);
 
     return allUsers;
   }

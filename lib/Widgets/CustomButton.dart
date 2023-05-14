@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/const.dart';
@@ -23,6 +25,7 @@ class Custom_ElevatedButtomState extends State<CustomElevatedButtom> {
                 borderRadius: BorderRadius.circular(15))),
         onPressed: widget.onPressed,
         child: CustomText(
+          color: text,
           content: widget.content,
           size: 20,
           weight: widget.weight ?? FontWeight.normal,

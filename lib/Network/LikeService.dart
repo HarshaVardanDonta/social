@@ -5,10 +5,11 @@ import 'package:socail/const.dart';
 import 'package:http/http.dart' as http;
 
 class LikeService {
-  static addLike(int postId, String likedBy) async {
+  static addLike(int postId, String likedBy, String userName) async {
     var data = {
       'postId': postId.toString(),
       'byUser': likedBy,
+      'userName': userName,
     };
     var response = await http.post(
       Uri.parse('$base_url/like/addLike'),

@@ -11,6 +11,7 @@ import 'package:socail/Network/PostService.dart';
 import 'package:socail/Network/UserService.dart';
 import 'package:socail/Screens/AllComments.dart';
 import 'package:socail/Screens/AllLikes.dart';
+import 'package:socail/Widgets/CustomSnackbar.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/Widgets/CustomTextField.dart';
 import 'package:socail/Widgets/ImageViewer.dart';
@@ -47,6 +48,11 @@ class _PostWidgetState extends State<PostWidget> {
   List<Like> likes = [];
   List<Comment> comments = [];
   UserObj? postUser;
+  UserObj? dbUser;
+
+  getDbUser() async {
+    dbUser = await UserService.getUser();
+  }
 
   getLikes() async {
     likes = await LikeService.getPostLikes(widget.id);
@@ -64,28 +70,23 @@ class _PostWidgetState extends State<PostWidget> {
   }
 
   TextEditingController commentController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (!gotLikes) {
+      getDbUser();
       getLikes();
-      return Container(
-        child: Center(
-          child: CircularProgressIndicator(
-            color: button,
-          ),
-        ),
-      );
+      return Container();
     }
     if (!gotComments) {
       getComments();
-      return Container(
-        child: Center(
-          child: CircularProgressIndicator(
-            color: button,
-          ),
-        ),
-      );
+      return Container();
     }
 
     return GestureDetector(
@@ -109,8 +110,11 @@ class _PostWidgetState extends State<PostWidget> {
                   Row(
                     children: [
                       CircleAvatar(
-                        radius: 25,
-                        backgroundImage: NetworkImage(postUser!.avatar!),
+                        radius: 27,
+                        child: CircleAvatar(
+                          radius: 25,
+                          backgroundImage: NetworkImage(postUser!.avatar!),
+                        ),
                       ),
                       SizedBox(
                         width: 10,
@@ -141,7 +145,7 @@ class _PostWidgetState extends State<PostWidget> {
                     height: 10,
                   ),
                   SizedBox(
-                    height: 500,
+                    height: 400,
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
@@ -194,14 +198,15 @@ class _PostWidgetState extends State<PostWidget> {
                             },
                             child: IconButton(
                               onPressed: () async {
+                                UserObj user = await UserService.getUser();
                                 var res = await LikeService.addLike(
-                                    widget.id, widget.user);
+                                    widget.id, dbUser!.firebaseUid, user.name);
                                 if (res == "saved") {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Liked")));
+                                  showSnack(content: 'Liked', context: context);
                                 } else if (res == "already liked") {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("already liked")));
+                                  showSnack(
+                                      content: 'Already Liked',
+                                      context: context);
                                 }
                                 setState(() {
                                   getLikes();
@@ -289,8 +294,8 @@ class _PostWidgetState extends State<PostWidget> {
                             if (status) {
                               commentController.clear();
                               FocusScope.of(context).unfocus();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Comment Added')));
+                              showSnack(
+                                  content: 'Comment Added', context: context);
                               setState(() {
                                 getComments();
                               });

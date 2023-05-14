@@ -17,6 +17,8 @@ import 'package:socail/Widgets/CustomButton.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/const.dart';
 
+import '../Widgets/CustomSnackbar.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -89,44 +91,129 @@ class _HomePageState extends State<HomePage> {
                               onPressed: () async {
                                 User? currentUser =
                                     FirebaseAuth.instance.currentUser;
-                                ImagePicker picker = ImagePicker();
-                                var pickedImage = await picker.pickImage(
-                                    source: ImageSource.gallery,
-                                    imageQuality: 20);
-                                Navigator.pop(context);
-
-                                setState(() {
-                                  showLoading = true;
-                                });
-                                FirebaseStorage _storage =
-                                    FirebaseStorage.instance;
-                                await _storage
-                                    .ref('avatars/${currentUser!.uid}')
-                                    .putFile(File(pickedImage!.path))
-                                    .then((value) async {
-                                  String url = await value.ref.getDownloadURL();
-                                  var status =
-                                      await UserService.setProfile(url);
-                                  if (status) {
-                                    setState(() {
-                                      getUser();
-                                      showLoading = false;
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            behavior: SnackBarBehavior.floating,
-                                            content: CustomText(
-                                                content:
-                                                    'Profile picture updated')));
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            behavior: SnackBarBehavior.floating,
-                                            content: CustomText(
-                                                content:
-                                                    'Profile picture not updated')));
-                                  }
-                                });
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => Dialog(
+                                          backgroundColor: container,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              IconButton(
+                                                iconSize: 30,
+                                                onPressed: () async {
+                                                  ImagePicker picker =
+                                                      ImagePicker();
+                                                  var pickedImage =
+                                                      await picker.pickImage(
+                                                          source: ImageSource
+                                                              .camera,
+                                                          imageQuality: 20);
+                                                  if (pickedImage == null) {
+                                                  } else {
+                                                    Navigator.pop(context);
+                                                    setState(() {
+                                                      showLoading = true;
+                                                    });
+                                                    FirebaseStorage _storage =
+                                                        FirebaseStorage
+                                                            .instance;
+                                                    await _storage
+                                                        .ref(
+                                                            'avatars/${currentUser!.uid}')
+                                                        .putFile(File(
+                                                            pickedImage.path))
+                                                        .then((value) async {
+                                                      String url = await value
+                                                          .ref
+                                                          .getDownloadURL();
+                                                      var status =
+                                                          await UserService
+                                                              .setProfile(url);
+                                                      if (status) {
+                                                        setState(() {
+                                                          getUser();
+                                                          showLoading = false;
+                                                        });
+                                                        showSnack(
+                                                            content:
+                                                                'Profile picture updated',
+                                                            context: context);
+                                                      } else {
+                                                        showSnack(
+                                                            content:
+                                                                'Unable to update profile picture',
+                                                            context: context);
+                                                      }
+                                                    });
+                                                  }
+                                                },
+                                                icon: Icon(
+                                                  Icons.camera_alt_outlined,
+                                                  color: text,
+                                                ),
+                                              ),
+                                              IconButton(
+                                                iconSize: 30,
+                                                onPressed: () async {
+                                                  ImagePicker picker =
+                                                      ImagePicker();
+                                                  var pickedImage =
+                                                      await picker.pickImage(
+                                                          source: ImageSource
+                                                              .gallery,
+                                                          imageQuality: 20);
+                                                  if (pickedImage == null) {
+                                                  } else {
+                                                    Navigator.pop(context);
+                                                    setState(() {
+                                                      showLoading = true;
+                                                    });
+                                                    FirebaseStorage _storage =
+                                                        FirebaseStorage
+                                                            .instance;
+                                                    await _storage
+                                                        .ref(
+                                                            'avatars/${currentUser!.uid}')
+                                                        .putFile(File(
+                                                            pickedImage.path))
+                                                        .then((value) async {
+                                                      String url = await value
+                                                          .ref
+                                                          .getDownloadURL();
+                                                      var status =
+                                                          await UserService
+                                                              .setProfile(url);
+                                                      if (status) {
+                                                        setState(() {
+                                                          getUser();
+                                                          showLoading = false;
+                                                        });
+                                                        showSnack(
+                                                            content:
+                                                                'Profile picture updated',
+                                                            context: context);
+                                                      } else {
+                                                        showSnack(
+                                                            content:
+                                                                'Unable to update profile picture',
+                                                            context: context);
+                                                      }
+                                                    });
+                                                  }
+                                                },
+                                                icon: Icon(
+                                                  Icons.image_outlined,
+                                                  color: text,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ));
+                                setState(() {});
                               },
                               icon: Icon(
                                 Icons.edit,

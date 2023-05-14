@@ -13,6 +13,8 @@ import 'package:socail/Widgets/CustomTextField.dart';
 import 'package:socail/const.dart';
 import 'package:socail/Models/User.dart';
 
+import '../Widgets/CustomSnackbar.dart';
+
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -75,14 +77,8 @@ class _LoginState extends State<Login> {
                 onPressed: () async {
                   if (emailController.text.isEmpty ||
                       passwordController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      backgroundColor: container,
-                      duration: const Duration(seconds: 1),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      behavior: SnackBarBehavior.floating,
-                      content: const Text('Please fill all the fields'),
-                    ));
+                    showSnack(
+                        content: 'Please fill all fields', context: context);
                   } else {
                     try {
                       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -95,14 +91,7 @@ class _LoginState extends State<Login> {
                               builder: ((context) => HomePage())));
                     } catch (e) {
                       print(e);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        backgroundColor: container,
-                        duration: const Duration(seconds: 1),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        behavior: SnackBarBehavior.floating,
-                        content: Text(e.toString()),
-                      ));
+                      showSnack(content: e.toString(), context: context);
                     }
                   }
                 }),

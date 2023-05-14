@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, file_names, must_be_immutable
 
 import 'package:flutter/material.dart';
 import 'package:socail/Widgets/CustomText.dart';
@@ -37,7 +37,7 @@ class CustomBottombutton extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: selected ? text : back,
+                  color: selected ? back : text,
                   size: 30,
                 ),
                 SizedBox(
@@ -45,7 +45,7 @@ class CustomBottombutton extends StatelessWidget {
                 ),
                 CustomText(
                   content: content,
-                  color: selected ? text : back,
+                  color: selected ? back : text,
                   weight: FontWeight.w500,
                 ),
               ],

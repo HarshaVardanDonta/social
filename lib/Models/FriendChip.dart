@@ -41,8 +41,11 @@ class _FriendChipState extends State<FriendChip> {
     return Container(
       child: ListTile(
         leading: CircleAvatar(
-          radius: 25,
-          backgroundImage: NetworkImage(avatar!),
+          radius: 27,
+          child: CircleAvatar(
+            radius: 25,
+            backgroundImage: NetworkImage(avatar!),
+          ),
         ),
         title: CustomText(
           content: widget.name,

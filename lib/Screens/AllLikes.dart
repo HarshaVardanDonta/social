@@ -1,7 +1,4 @@
 // ignore_for_file: prefer_const_constructors
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/const.dart';
@@ -33,15 +30,10 @@ class _AllLikesState extends State<AllLikes> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomText(
-                    content: widget.likes[index].likedBy,
+                    content: widget.likes[index].userName,
                     color: text,
                     size: 25,
                     weight: FontWeight.bold,
-                  ),
-                  CustomText(
-                    content: "For - ${widget.likes[index].postId}",
-                    color: text,
-                    size: 20,
                   ),
                 ],
               ),

@@ -31,6 +31,7 @@ class _FeedState extends State<Feed> {
         return Future.value(true);
       },
       child: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
         child: Column(
           children: [
             FutureBuilder<List<Post>>(

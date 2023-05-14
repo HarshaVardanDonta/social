@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, file_names
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,8 @@ import 'package:socail/Screens/HomePage.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/Widgets/CustomTextField.dart';
 import 'package:socail/const.dart';
+
+import '../Widgets/CustomSnackbar.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -59,7 +61,7 @@ class _SignUpState extends State<SignUp> {
             SizedBox(height: 20),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                    primary: button,
+                    backgroundColor: button,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15))),
                 onPressed: () async {
@@ -68,14 +70,8 @@ class _SignUpState extends State<SignUp> {
                       nameController.text.isEmpty ||
                       passwordController2.text.isEmpty ||
                       passwordController.text != passwordController2.text) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      backgroundColor: container,
-                      duration: const Duration(seconds: 1),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      behavior: SnackBarBehavior.floating,
-                      content: Text('Please fill all the fields'),
-                    ));
+                    showSnack(
+                        content: 'Please fill all fields', context: context);
                   } else {
                     try {
                       var user = await FirebaseAuth.instance
@@ -83,8 +79,7 @@ class _SignUpState extends State<SignUp> {
                               email: emailController.text,
                               password: passwordController.text);
                       User firebaseUSer = FirebaseAuth.instance.currentUser!;
-                      firebaseUSer.updateProfile(
-                          displayName: nameController.text);
+                      await firebaseUSer.updateDisplayName(nameController.text);
                       var userObj = await UserService.registerUser(UserObj(
                           name: nameController.text,
                           email: emailController.text,
@@ -92,14 +87,7 @@ class _SignUpState extends State<SignUp> {
                           firebaseUid: user.user!.uid,
                           avatar:
                               'https://eu.ui-avatars.com/api/?name=${nameController.text}&size=250'));
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        backgroundColor: container,
-                        duration: const Duration(seconds: 1),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        behavior: SnackBarBehavior.floating,
-                        content: Text('success'),
-                      ));
+                      showSnack(content: 'Success', context: context);
 
                       if (userObj != null) {
                         Navigator.pushReplacement(
@@ -108,15 +96,8 @@ class _SignUpState extends State<SignUp> {
                                 builder: ((context) => HomePage())));
                       }
                     } catch (e) {
-                      print(e);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        backgroundColor: container,
-                        duration: const Duration(seconds: 1),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        behavior: SnackBarBehavior.floating,
-                        content: Text(e.toString()),
-                      ));
+                      // print(e);
+                      showSnack(content: e.toString(), context: context);
                     }
                   }
                 },

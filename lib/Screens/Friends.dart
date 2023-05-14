@@ -11,6 +11,8 @@ import 'package:socail/Network/UserService.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/const.dart';
 
+import '../Widgets/CustomSnackbar.dart';
+
 class Friends extends StatefulWidget {
   const Friends({super.key});
 
@@ -77,129 +79,118 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
       backgroundColor: back,
       body: Column(
         children: [
-          TabBar(
-            controller: tabController,
-            tabs: [
-              Tab(
-                text: 'All Users',
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
+            child: TabBar(
+              labelColor: text,
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: container,
               ),
-              Tab(
-                text: 'Invitations',
+              controller: tabController,
+              tabs: [
+                Tab(
+                  text: 'All Users',
+                ),
+                Tab(
+                  text: 'Invitations',
+                ),
+                Tab(
+                  text: 'Your Friends',
+                ),
+              ],
+              labelStyle: GoogleFonts.poppins(
+                fontSize: 18,
+                color: text,
+                fontWeight: FontWeight.w500,
               ),
-              Tab(
-                text: 'Your Friends',
-              ),
-            ],
-            labelStyle: GoogleFonts.poppins(
-              fontSize: 18,
-              color: text,
-              fontWeight: FontWeight.w500,
             ),
           ),
           Expanded(
             child: TabBarView(
               controller: tabController,
               children: [
-                Container(
-                  child: ListView.builder(
-                    itemCount: allUsers.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: CircleAvatar(
+                ListView.builder(
+                  itemCount: allUsers.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      leading: CircleAvatar(
+                        radius: 27,
+                        child: CircleAvatar(
                           radius: 25,
                           backgroundImage:
                               NetworkImage(allUsers[index].avatar!),
                         ),
-                        title: CustomText(
-                          content: allUsers[index].name,
-                          size: 20,
-                          weight: FontWeight.bold,
+                      ),
+                      title: CustomText(
+                        content: allUsers[index].name,
+                        size: 20,
+                        weight: FontWeight.bold,
+                        color: text,
+                      ),
+                      subtitle: CustomText(
+                        content: allUsers[index].email,
+                        size: 15,
+                        weight: FontWeight.bold,
+                        color: text,
+                      ),
+                      trailing: IconButton(
+                        onPressed: () async {
+                          var status = await FriendService.addFriend(
+                              user!.uid, allUsers[index].firebaseUid);
+                          if (status == 'Request already exists') {
+                            showSnack(
+                                content: 'Request already exists',
+                                context: context);
+                          } else if (status == 'Friend added') {
+                            showSnack(
+                                content: 'Request sent', context: context);
+                          }
+                        },
+                        icon: Icon(
+                          Icons.add,
                           color: text,
                         ),
-                        subtitle: CustomText(
-                          content: allUsers[index].email,
-                          size: 15,
-                          weight: FontWeight.bold,
-                          color: text,
-                        ),
-                        trailing: IconButton(
-                          onPressed: () async {
-                            var status = await FriendService.addFriend(
-                                user!.uid, allUsers[index].firebaseUid);
-                            if (status == 'Request already exists') {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  content: Text('Request already sent'),
-                                ),
-                              );
-                            } else if (status == 'Friend added') {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  content: Text('Friend request sent'),
-                                ),
-                              );
-                            } else if (status == "You can't add yourself") {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  content: Text("You can't add yourself"),
-                                ),
-                              );
-                            }
-                          },
-                          icon: Icon(
-                            Icons.add,
-                            color: text,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
-                Container(
-                  child: ListView.builder(
-                    itemCount: pendingRequests.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: CustomText(
-                          content: pendingRequests[index].userName,
-                          size: 20,
-                          weight: FontWeight.bold,
+                ListView.builder(
+                  itemCount: pendingRequests.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: CustomText(
+                        content: pendingRequests[index].userName,
+                        size: 20,
+                        weight: FontWeight.bold,
+                        color: text,
+                      ),
+                      subtitle: CustomText(
+                        content: pendingRequests[index].friendUserName,
+                        size: 15,
+                        weight: FontWeight.bold,
+                        color: text,
+                      ),
+                      trailing: IconButton(
+                        onPressed: () async {
+                          await FriendService.acceptReq(
+                            user!.uid,
+                            pendingRequests[index].friendUserId,
+                          );
+                          showSnack(
+                              content: 'Request Accepted', context: context);
+                          setState(() {
+                            getAllPendingRequests();
+                            getExistingFriends();
+                          });
+                        },
+                        icon: Icon(
+                          Icons.done,
                           color: text,
                         ),
-                        subtitle: CustomText(
-                          content: pendingRequests[index].friendUserName,
-                          size: 15,
-                          weight: FontWeight.bold,
-                          color: text,
-                        ),
-                        trailing: IconButton(
-                          onPressed: () async {
-                            await FriendService.acceptReq(
-                              user!.uid,
-                              pendingRequests[index].friendUserId,
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                behavior: SnackBarBehavior.floating,
-                                content: Text('Request accepted'),
-                              ),
-                            );
-                            setState(() {
-                              getAllPendingRequests();
-                              getExistingFriends();
-                            });
-                          },
-                          icon: Icon(
-                            Icons.done,
-                            color: text,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
                 ListView.builder(
                   itemCount: existingFriends.length,

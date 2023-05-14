@@ -12,6 +12,7 @@ import 'package:socail/Models/Post.dart';
 import 'package:socail/Network/PostService.dart';
 import 'package:socail/Screens/CameraScreen.dart';
 import 'package:socail/Widgets/CustomButton.dart';
+import 'package:socail/Widgets/CustomSnackbar.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/Widgets/CustomTextField.dart';
 import 'package:socail/const.dart';
@@ -180,33 +181,25 @@ class _AddPostState extends State<AddPost> {
                                       imageCaptured = false;
                                       loading = false;
                                     });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                'Post added successfully')));
+                                    showSnack(
+                                        content: 'Post Added',
+                                        context: context);
                                   } else {
                                     setState(() {
                                       loading = false;
                                     });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content:
-                                                Text('Something went wrong')));
+                                    showSnack(
+                                        content: 'Something went wrong',
+                                        context: context);
                                   }
                                 });
                                 setState(() {
                                   loading = false;
                                 });
                               } else {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                        backgroundColor: container,
-                                        behavior: SnackBarBehavior.floating,
-                                        content: CustomText(
-                                          content: 'Please fill all the fields',
-                                          color: Colors.white,
-                                          size: 20,
-                                        )));
+                                showSnack(
+                                    content: 'Please fill all the fields',
+                                    context: context);
                               }
                             },
                             child: Container(
