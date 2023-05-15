@@ -3,6 +3,7 @@ import 'package:socail/Models/User.dart';
 import 'package:socail/Network/FriendService.dart';
 import 'package:socail/Network/UserService.dart';
 
+import '../Network/Notification.dart';
 import '../Widgets/CustomText.dart';
 import '../const.dart';
 
@@ -40,20 +41,33 @@ class _FriendChipState extends State<FriendChip> {
     }
     return Container(
       child: ListTile(
-        leading: CircleAvatar(
-          radius: 27,
-          child: CircleAvatar(
-            radius: 25,
-            backgroundImage: NetworkImage(avatar!),
+          leading: CircleAvatar(
+            radius: 27,
+            child: CircleAvatar(
+              radius: 25,
+              backgroundImage: NetworkImage(avatar!),
+            ),
           ),
-        ),
-        title: CustomText(
-          content: widget.name,
-          size: 20,
-          weight: FontWeight.bold,
-          color: text,
-        ),
-      ),
+          title: CustomText(
+            content: widget.name,
+            size: 20,
+            weight: FontWeight.bold,
+            color: text,
+          ),
+          trailing: IconButton(
+            onPressed: () async {
+              String token = await UserService.getToken(fid: widget.uid);
+              sendPushMEssage(
+                token,
+                "Poke by ${currentDbUser!.name}",
+                "You can poke back by visiting your friends list",
+              );
+            },
+            icon: Icon(
+              Icons.fingerprint,
+              color: text,
+            ),
+          )),
     );
   }
 }

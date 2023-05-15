@@ -123,11 +123,13 @@ class _AddPostState extends State<AddPost> {
                                                       builder: (context) =>
                                                           CamerScreen()))
                                               .then((value) {
-                                            setState(() {
-                                              image = value;
-                                              imageCaptured = true;
-                                              // loading = true;
-                                            });
+                                            if (value != null) {
+                                              setState(() {
+                                                image = value;
+                                                imageCaptured = true;
+                                                // loading = true;
+                                              });
+                                            }
                                           });
                                         },
                                         child: Container(

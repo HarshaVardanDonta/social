@@ -86,7 +86,8 @@ class _SignUpState extends State<SignUp> {
                           password: passwordController.text,
                           firebaseUid: user.user!.uid,
                           avatar:
-                              'https://eu.ui-avatars.com/api/?name=${nameController.text}&size=250'));
+                              'https://eu.ui-avatars.com/api/?name=${nameController.text}&size=250',
+                          fcm: ''));
                       showSnack(content: 'Success', context: context);
 
                       if (userObj != null) {

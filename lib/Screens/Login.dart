@@ -1,17 +1,14 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously, unused_local_variable
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:socail/Models/User.dart';
-import 'package:socail/Network/UserService.dart';
 import 'package:socail/Screens/HomePage.dart';
 import 'package:socail/Screens/SignUp.dart';
 import 'package:socail/Widgets/CustomButton.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/Widgets/CustomTextField.dart';
 import 'package:socail/const.dart';
-import 'package:socail/Models/User.dart';
 
 import '../Widgets/CustomSnackbar.dart';
 

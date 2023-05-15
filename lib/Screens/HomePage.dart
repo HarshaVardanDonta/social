@@ -3,10 +3,13 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:socail/Models/User.dart';
+import 'package:socail/Network/Notification.dart';
 import 'package:socail/Network/UserService.dart';
 import 'package:socail/Screens/AddPost.dart';
 import 'package:socail/Screens/Feed.dart';
@@ -27,6 +30,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   List<Widget> body = [
     Feed(),
     AddPost(),
@@ -48,9 +53,65 @@ class _HomePageState extends State<HomePage> {
 
   bool showLoading = false;
 
+  initInfo() async {
+    var androidSettings = AndroidInitializationSettings("@mipmap/ic_launcher");
+    var ios = DarwinInitializationSettings();
+    var settings = InitializationSettings(android: androidSettings, iOS: ios);
+
+    flutterLocalNotificationsPlugin.initialize(settings,
+        onDidReceiveNotificationResponse: (response) async {},
+        onDidReceiveBackgroundNotificationResponse: (response) async {});
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      // print('......................on message.......................');
+      // print('${message.notification!.title} and ${message.notification!.body}');
+      BigTextStyleInformation bigTextStyleInformation = BigTextStyleInformation(
+        '${message.notification!.body}',
+        htmlFormatBigText: true,
+        contentTitle: '${message.notification!.title}',
+        htmlFormatContentTitle: true,
+        // summaryText: 'Chat',
+        htmlFormatSummaryText: true,
+      );
+      AndroidNotificationDetails androidNotificationDetails =
+          AndroidNotificationDetails(
+        'channel id',
+        'channel name',
+        importance: Importance.max,
+        priority: Priority.high,
+        styleInformation: bigTextStyleInformation,
+        playSound: true,
+        icon: '@mipmap/ic_launcher',
+      );
+      DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
+      NotificationDetails notificationDetails = NotificationDetails(
+          android: androidNotificationDetails, iOS: iosDetails);
+      await flutterLocalNotificationsPlugin.show(
+          0,
+          '${message.notification!.title}',
+          '${message.notification!.body}',
+          notificationDetails,
+          payload: message.data['body']);
+    });
+  }
+
+  getToken() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    String? token = await messaging.getToken();
+    await UserService.saveToken(token: token!);
+    // print('token is $token');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!gotUser) {
+      getToken();
       getUser();
       return Scaffold(
         body: Center(

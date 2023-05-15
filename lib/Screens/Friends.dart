@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +7,7 @@ import 'package:socail/Models/Friend.dart';
 import 'package:socail/Models/FriendChip.dart';
 import 'package:socail/Models/User.dart';
 import 'package:socail/Network/FriendService.dart';
+import 'package:socail/Network/Notification.dart';
 import 'package:socail/Network/UserService.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/const.dart';
@@ -82,6 +83,7 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
           Padding(
             padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
             child: TabBar(
+              isScrollable: true,
               labelColor: text,
               indicator: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -143,6 +145,13 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
                                 content: 'Request already exists',
                                 context: context);
                           } else if (status == 'Friend added') {
+                            String token = await UserService.getToken(
+                                fid: allUsers[index].firebaseUid);
+                            sendPushMEssage(
+                              token,
+                              'Friend Request',
+                              '${user.displayName} sent you a friend request',
+                            );
                             showSnack(
                                 content: 'Request sent', context: context);
                           }
@@ -179,6 +188,10 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
                           );
                           showSnack(
                               content: 'Request Accepted', context: context);
+                          String token = await UserService.getToken(
+                              fid: pendingRequests[index].friendUserId);
+                          sendPushMEssage(token, 'Friend Request Accepted',
+                              '${user.displayName} accepted your friend request');
                           setState(() {
                             getAllPendingRequests();
                             getExistingFriends();

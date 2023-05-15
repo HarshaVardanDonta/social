@@ -6,13 +6,15 @@ class UserObj {
   final String password;
   final String firebaseUid;
   final String? avatar;
+  final String? fcm;
 
   UserObj(
       {required this.name,
       required this.email,
       required this.password,
       required this.firebaseUid,
-      this.avatar});
+      this.avatar,
+      this.fcm});
 
   factory UserObj.fromJson(Map<String, dynamic> json) {
     return UserObj(
@@ -20,7 +22,8 @@ class UserObj {
         email: json['email'],
         password: json['password'],
         firebaseUid: json['firebaseUid'],
-        avatar: json['avatar']);
+        avatar: json['avatar'],
+        fcm: json['fcm'] ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -29,7 +32,8 @@ class UserObj {
       'email': email,
       'password': password,
       'firebaseUid': firebaseUid,
-      'avatar': avatar
+      'avatar': avatar,
+      'fcm': fcm
     };
   }
 }

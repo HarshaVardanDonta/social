@@ -7,6 +7,7 @@ import 'package:socail/Models/Comment.dart';
 import 'package:socail/Models/Like.dart';
 import 'package:socail/Models/User.dart';
 import 'package:socail/Network/LikeService.dart';
+import 'package:socail/Network/Notification.dart';
 import 'package:socail/Network/PostService.dart';
 import 'package:socail/Network/UserService.dart';
 import 'package:socail/Screens/AllComments.dart';
@@ -203,7 +204,12 @@ class _PostWidgetState extends State<PostWidget> {
                                     widget.id, dbUser!.firebaseUid, user.name);
                                 if (res == "saved") {
                                   showSnack(content: 'Liked', context: context);
+                                  String token = await UserService.getToken();
+                                  sendPushMEssage(token, "You got a like",
+                                      '${widget.title} liked by ${dbUser!.name}');
                                 } else if (res == "already liked") {
+                                  String token = await UserService.getToken();
+
                                   showSnack(
                                       content: 'Already Liked',
                                       context: context);
@@ -292,13 +298,18 @@ class _PostWidgetState extends State<PostWidget> {
                               createdDate: createdDate.toString(),
                             );
                             if (status) {
-                              commentController.clear();
                               FocusScope.of(context).unfocus();
                               showSnack(
                                   content: 'Comment Added', context: context);
                               setState(() {
                                 getComments();
                               });
+                              String token = await UserService.getToken();
+                              sendPushMEssage(
+                                  token,
+                                  "New Comment on ${widget.title}",
+                                  '${commentController.text} by ${commentUser.name}');
+                              commentController.clear();
                             }
                           }
                         },

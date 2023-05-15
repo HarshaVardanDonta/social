@@ -9,6 +9,32 @@ import 'package:socail/const.dart';
 import '../Models/User.dart';
 
 class UserService {
+  static saveToken({
+    required String token,
+  }) async {
+    var data = {
+      "fid": FirebaseAuth.instance.currentUser!.uid,
+      "token": token,
+    };
+    var response = await http.post(
+      Uri.parse('$base_url/user/saveToken'),
+      body: data,
+    );
+
+    print('token res is ${response.body}');
+  }
+
+  static Future<String> getToken({String? fid}) async {
+    String firebaseId = FirebaseAuth.instance.currentUser!.uid;
+    var response = await http
+        .get(Uri.parse('$base_url/user/getToken/${fid ?? firebaseId}'));
+    if (response.body != '') {
+      return response.body;
+    } else {
+      return '';
+    }
+  }
+
   static registerUser(UserObj user) async {
     var data = {
       'name': user.name,
@@ -16,6 +42,7 @@ class UserService {
       'password': user.password,
       'firebaseUid': user.firebaseUid,
       'avatar': user.avatar,
+      'fcm': user.fcm,
     };
     var response = await http.post(
       Uri.parse('$base_url/user/register'),
