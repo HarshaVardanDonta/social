@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, use_build_context_synchronously, await_only_futures
+// ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, use_build_context_synchronously, await_only_futures, avoid_function_literals_in_foreach_calls
 
 import 'dart:io';
 
@@ -8,7 +8,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:socail/Models/Friend.dart';
 import 'package:socail/Models/Post.dart';
+import 'package:socail/Network/Notification.dart';
 import 'package:socail/Network/PostService.dart';
 import 'package:socail/Screens/CameraScreen.dart';
 import 'package:socail/Widgets/CustomButton.dart';
@@ -16,6 +18,10 @@ import 'package:socail/Widgets/CustomSnackbar.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/Widgets/CustomTextField.dart';
 import 'package:socail/const.dart';
+
+import '../Models/User.dart';
+import '../Network/FriendService.dart';
+import '../Network/UserService.dart';
 
 class AddPost extends StatefulWidget {
   const AddPost({super.key});
@@ -42,8 +48,29 @@ class _AddPostState extends State<AddPost> {
     super.dispose();
   }
 
+  bool gotExisting = false;
+  UserObj? currentDbUser;
+  List<Friend> existingFriends = [];
+  getExistingFriends() async {
+    currentDbUser = await UserService.getUser();
+    existingFriends =
+        await FriendService.getFriends(currentDbUser!.firebaseUid);
+    setState(() {
+      gotExisting = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!gotExisting) {
+      getExistingFriends();
+      return Scaffold(
+        backgroundColor: back,
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     User? currentUser = FirebaseAuth.instance.currentUser;
 
     return GestureDetector(
@@ -155,8 +182,9 @@ class _AddPostState extends State<AddPost> {
                           child: InkWell(
                             splashColor: container,
                             onTap: () async {
-                              if (titleController.text != '' ||
-                                  descController.text != '') {
+                              if (titleController.text != '' &&
+                                  descController.text != '' &&
+                                  imageCaptured) {
                                 setState(() {
                                   loading = true;
                                 });
@@ -182,6 +210,18 @@ class _AddPostState extends State<AddPost> {
                                       descController.text = '';
                                       imageCaptured = false;
                                       loading = false;
+                                    });
+                                    print(existingFriends);
+                                    existingFriends.forEach((element) async {
+                                      String token = await UserService.getToken(
+                                          fid: (currentUser.uid ==
+                                                  element.userId)
+                                              ? element.friendUserId
+                                              : element.userId);
+                                      await sendPushMEssage(
+                                          token,
+                                          currentUser.displayName!,
+                                          "${currentUser.displayName!} added a new post");
                                     });
                                     showSnack(
                                         content: 'Post Added',

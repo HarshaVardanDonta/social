@@ -189,7 +189,7 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
                           showSnack(
                               content: 'Request Accepted', context: context);
                           String token = await UserService.getToken(
-                              fid: pendingRequests[index].friendUserId);
+                              fid: pendingRequests[index].userId);
                           sendPushMEssage(token, 'Friend Request Accepted',
                               '${user.displayName} accepted your friend request');
                           setState(() {

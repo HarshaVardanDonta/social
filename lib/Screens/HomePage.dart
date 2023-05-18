@@ -30,8 +30,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
   List<Widget> body = [
     Feed(),
     AddPost(),
@@ -43,7 +41,6 @@ class _HomePageState extends State<HomePage> {
   bool addSelected = false;
   bool friendsSelected = false;
   UserObj? dbUser;
-  bool gotUser = false;
   getUser() async {
     dbUser = await UserService.getUser();
     setState(() {
@@ -53,18 +50,33 @@ class _HomePageState extends State<HomePage> {
 
   bool showLoading = false;
 
+  getToken() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    String? token = await messaging.getToken();
+    await UserService.saveToken(token: token!);
+  }
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   initInfo() async {
     var androidSettings = AndroidInitializationSettings("@mipmap/ic_launcher");
     var ios = DarwinInitializationSettings();
     var settings = InitializationSettings(android: androidSettings, iOS: ios);
-
     flutterLocalNotificationsPlugin.initialize(settings,
-        onDidReceiveNotificationResponse: (response) async {},
-        onDidReceiveBackgroundNotificationResponse: (response) async {});
-
+        onDidReceiveNotificationResponse: (response) async {
+      print(response);
+    }, onDidReceiveBackgroundNotificationResponse: (response) async {
+      print(response);
+    });
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true, // Required to display a heads up notification
+      badge: true,
+      sound: true,
+    );
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      // print('......................on message.......................');
-      // print('${message.notification!.title} and ${message.notification!.body}');
+      print('......................on message.......................');
+      print('${message.notification!.title} and ${message.notification!.body}');
       BigTextStyleInformation bigTextStyleInformation = BigTextStyleInformation(
         '${message.notification!.body}',
         htmlFormatBigText: true,
@@ -95,23 +107,17 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  getToken() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    String? token = await messaging.getToken();
-    await UserService.saveToken(token: token!);
-    // print('token is $token');
-  }
-
   @override
   void initState() {
     super.initState();
+    getToken();
     initInfo();
   }
 
+  bool gotUser = false;
   @override
   Widget build(BuildContext context) {
     if (!gotUser) {
-      getToken();
       getUser();
       return Scaffold(
         body: Center(

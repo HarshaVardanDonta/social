@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 sendPushMEssage(String token, String title, String body) async {
   try {
-    await http.post(
+    var res = await http.post(
       Uri.parse("https://fcm.googleapis.com/fcm/send"),
       headers: <String, String>{
         'Content-Type': 'application/json',
@@ -26,8 +26,7 @@ sendPushMEssage(String token, String title, String body) async {
         'to': token,
       }),
     );
-    // print(token);
-    print("sent");
+    print(res.body);
   } catch (e) {
     print(e);
   }

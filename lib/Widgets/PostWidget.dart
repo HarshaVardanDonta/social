@@ -204,12 +204,11 @@ class _PostWidgetState extends State<PostWidget> {
                                     widget.id, dbUser!.firebaseUid, user.name);
                                 if (res == "saved") {
                                   showSnack(content: 'Liked', context: context);
-                                  String token = await UserService.getToken();
+                                  String token = await UserService.getToken(
+                                      fid: widget.user);
                                   sendPushMEssage(token, "You got a like",
                                       '${widget.title} liked by ${dbUser!.name}');
                                 } else if (res == "already liked") {
-                                  String token = await UserService.getToken();
-
                                   showSnack(
                                       content: 'Already Liked',
                                       context: context);
@@ -304,7 +303,8 @@ class _PostWidgetState extends State<PostWidget> {
                               setState(() {
                                 getComments();
                               });
-                              String token = await UserService.getToken();
+                              String token =
+                                  await UserService.getToken(fid: widget.user);
                               sendPushMEssage(
                                   token,
                                   "New Comment on ${widget.title}",

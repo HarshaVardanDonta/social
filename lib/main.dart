@@ -22,23 +22,13 @@ void main() async {
     systemNavigationBarColor: Colors.transparent,
     systemNavigationBarDividerColor: Colors.transparent,
   ));
-
+  FirebaseMessaging.onBackgroundMessage(back);
 //Setting SystmeUIMode
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
       overlays: [SystemUiOverlay.top]);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  FirebaseMessaging.onBackgroundMessage(back);
-
   runApp(const MyApp());
 }
-
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  'high_importance_channel', // id
-  'High Importance Notifications', // title
-  importance: Importance.high,
-);
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

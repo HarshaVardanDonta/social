@@ -40,6 +40,7 @@ class _FriendChipState extends State<FriendChip> {
       return Container();
     }
     return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5),
       child: ListTile(
           leading: CircleAvatar(
             radius: 27,
@@ -57,6 +58,7 @@ class _FriendChipState extends State<FriendChip> {
           trailing: IconButton(
             onPressed: () async {
               String token = await UserService.getToken(fid: widget.uid);
+              print(token);
               sendPushMEssage(
                 token,
                 "Poke by ${currentDbUser!.name}",

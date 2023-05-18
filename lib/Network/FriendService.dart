@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:socail/Models/Friend.dart';
 
-class FriendService{
+class FriendService {
   static addFriend(String userId, String friendUserId) async {
     var data = {
       'userId': userId,
@@ -18,22 +18,22 @@ class FriendService{
   }
 
   static Future<List<Friend>> getPendingRequests(String userId) async {
-   var res = await http.get(Uri.parse('$base_url/friend/pendingRequests/$userId'));
-   if(res.statusCode == 200){
+    var res =
+        await http.get(Uri.parse('$base_url/friend/pendingRequests/$userId'));
+    if (res.statusCode == 200) {
       List<Friend> friends = [];
       var data = json.decode(res.body);
       for (var friend in data) {
         friends.add(Friend.fromJson(friend));
       }
       return friends;
-   }
-    else{
+    } else {
       return [];
     }
   }
 
-  static acceptReq(String userId, String friendUserId)async{
-     var data = {
+  static acceptReq(String userId, String friendUserId) async {
+    var data = {
       'userId': userId,
       'friendUserId': friendUserId,
     };
@@ -41,30 +41,25 @@ class FriendService{
       Uri.parse('$base_url/friend/acceptRequest'),
       body: data,
     );
-    print(response.body);
-    
-    return response.body;
+    print("Accept Request: ${response.body}");
   }
 
-  static Future<List<Friend>> getFriends (String userId)async{
+  static Future<List<Friend>> getFriends(String userId) async {
     var response = await http.get(
       Uri.parse('$base_url/friend/friends/$userId'),
     );
 
-    if(response.statusCode == 200){
+    if (response.statusCode == 200) {
       List<Friend> friends = [];
       var data = json.decode(response.body);
       for (var friend in data) {
         friends.add(Friend.fromJson(friend));
       }
       return friends;
-    }
-    else{
+    } else {
       List<Friend> friends = [];
 
-     return friends;
+      return friends;
     }
   }
-
-  
 }
