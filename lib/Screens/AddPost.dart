@@ -94,9 +94,9 @@ class _AddPostState extends State<AddPost> {
                           // margin: EdgeInsets.all(10),
                           padding: EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: button,
-                            // borderRadius: BorderRadius.circular(10),
-                          ),
+                              // color: button,
+                              // borderRadius: BorderRadius.circular(10),
+                              ),
                           child: Column(
                             children: [
                               TextField(
@@ -144,6 +144,7 @@ class _AddPostState extends State<AddPost> {
                                       )
                                     : InkWell(
                                         onTap: () async {
+                                          FocusScope.of(context).unfocus();
                                           await Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
@@ -159,17 +160,35 @@ class _AddPostState extends State<AddPost> {
                                             }
                                           });
                                         },
-                                        child: Container(
-                                          height: 400,
-                                          width: double.infinity,
-                                          child: Center(
-                                              child: Icon(
-                                            Icons.add_a_photo,
-                                            color: text,
-                                            size: 40,
-                                          )),
-                                        ),
+                                        child: Center(
+                                            child: Icon(
+                                          Icons.add_a_photo,
+                                          color: text,
+                                          size: 40,
+                                        )),
                                       ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    imageCaptured = false;
+                                    image = XFile('');
+                                  });
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    CustomText(
+                                      content: "Remove",
+                                      color: text,
+                                      size: 20,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Icon(Icons.delete, color: text, size: 20),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -178,8 +197,9 @@ class _AddPostState extends State<AddPost> {
                           height: 10,
                         ),
                         Ink(
-                          color: button,
+                          // color: button,
                           child: InkWell(
+                            borderRadius: BorderRadius.circular(10),
                             splashColor: container,
                             onTap: () async {
                               if (titleController.text != '' &&

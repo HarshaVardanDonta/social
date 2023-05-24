@@ -21,6 +21,7 @@ import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/const.dart';
 
 import '../Widgets/CustomSnackbar.dart';
+import 'Explore.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,12 +33,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Widget> body = [
     Feed(),
+    Explore(),
     AddPost(),
     Friends(),
   ];
   int activePage = 0;
   PageController pageController = PageController();
   bool homeSelected = true;
+  bool exploreSelected = false;
+
   bool addSelected = false;
   bool friendsSelected = false;
   UserObj? dbUser;
@@ -115,6 +119,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   bool gotUser = false;
+  List<String> titles = [
+    'Home',
+    'Explore',
+    'Add Post',
+    'Friends',
+  ];
   @override
   Widget build(BuildContext context) {
     if (!gotUser) {
@@ -315,31 +325,17 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            appBar: (activePage == 0)
-                ? AppBar(
-                    foregroundColor: text,
-                    backgroundColor: back,
-                    elevation: 0,
-                    title: CustomText(
-                      content: 'Home',
-                      color: text,
-                      weight: FontWeight.bold,
-                      size: 25,
-                    ),
-                  )
-                : (activePage == 1)
-                    ? null
-                    : AppBar(
-                        foregroundColor: text,
-                        backgroundColor: back,
-                        elevation: 0,
-                        title: CustomText(
-                          content: 'Friends',
-                          color: text,
-                          weight: FontWeight.bold,
-                          size: 25,
-                        ),
-                      ),
+            appBar: AppBar(
+              foregroundColor: text,
+              backgroundColor: back,
+              elevation: 0,
+              title: CustomText(
+                content: titles[activePage],
+                color: text,
+                weight: FontWeight.bold,
+                size: 20,
+              ),
+            ),
             body: PageView(
               physics: NeverScrollableScrollPhysics(),
               controller: pageController,
@@ -372,10 +368,27 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () {
                           setState(() {
                             homeSelected = true;
+                            exploreSelected = false;
                             addSelected = false;
                             friendsSelected = false;
                             activePage = 0;
                             pageController.animateToPage(0,
+                                duration: Duration(milliseconds: 200),
+                                curve: Curves.ease);
+                          });
+                        },
+                      ),
+                      CustomBottombutton(
+                        selected: exploreSelected,
+                        icon: Icons.explore,
+                        content: 'Explore',
+                        onPressed: () {
+                          setState(() {
+                            exploreSelected = true;
+                            addSelected = false;
+                            homeSelected = false;
+                            friendsSelected = false;
+                            pageController.animateToPage(1,
                                 duration: Duration(milliseconds: 200),
                                 curve: Curves.ease);
                           });
@@ -388,10 +401,11 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () {
                           setState(() {
                             addSelected = true;
+                            exploreSelected = false;
                             homeSelected = false;
                             friendsSelected = false;
                             activePage = 1;
-                            pageController.animateToPage(1,
+                            pageController.animateToPage(2,
                                 duration: Duration(milliseconds: 200),
                                 curve: Curves.ease);
                           });
@@ -404,10 +418,11 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () {
                           setState(() {
                             friendsSelected = true;
+                            exploreSelected = false;
                             homeSelected = false;
                             addSelected = false;
                             activePage = 2;
-                            pageController.animateToPage(2,
+                            pageController.animateToPage(3,
                                 duration: Duration(milliseconds: 200),
                                 curve: Curves.ease);
                           });

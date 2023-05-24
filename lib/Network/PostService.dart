@@ -1,10 +1,5 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:socail/Models/Post.dart';
 import 'package:socail/const.dart';
@@ -48,6 +43,20 @@ class PostService {
         throw "Can't get posts";
       }
     });
+  }
+
+  searchPost({
+    required String searchQuery,
+  }) async {
+    var res = await http.get(Uri.parse('$base_url/post/find/$searchQuery'));
+    if (res.statusCode == 200) {
+      List<dynamic> body = jsonDecode(res.body);
+      List<Post> posts =
+          body.map((dynamic item) => Post.fromJson(item)).toList();
+      return posts;
+    } else {
+      return null;
+    }
   }
 
   static Future<bool> addComment({

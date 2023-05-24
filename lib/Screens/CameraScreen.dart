@@ -70,10 +70,15 @@ class _CamerScreenState extends State<CamerScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               if (controller!.value.isInitialized)
-                Container(
-                  height: controller!.value.previewSize?.height,
-                  width: controller!.value.previewSize?.width,
-                  child: CameraPreview(controller!),
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    height: controller!.value.previewSize?.height,
+                    width: controller!.value.previewSize?.width,
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: CameraPreview(controller!)),
+                  ),
                 ),
               if (!controller!.value.isInitialized)
                 Expanded(
@@ -89,7 +94,12 @@ class _CamerScreenState extends State<CamerScreen> {
                   ),
                 ),
               Container(
-                height: 100,
+                margin: EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
+                // height: 100,
+                decoration: BoxDecoration(
+                    color: container,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
