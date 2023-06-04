@@ -1,5 +1,3 @@
-import 'package:socail/Network/UserService.dart';
-
 class Friend {
   final int id;
   final String friendUserId;

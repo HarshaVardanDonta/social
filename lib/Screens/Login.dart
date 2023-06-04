@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously, unused_local_variable
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:socail/Screens/HomePage.dart';
 import 'package:socail/Screens/SignUp.dart';

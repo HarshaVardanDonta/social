@@ -1,6 +1,7 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:socail/Models/User.dart';
-import 'package:socail/Network/FriendService.dart';
 import 'package:socail/Network/UserService.dart';
 
 import '../Network/Notification.dart';

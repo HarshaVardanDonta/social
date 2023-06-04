@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, iterable_contains_unrelated_type, avoid_function_literals_in_foreach_calls, avoid_print
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, iterable_contains_unrelated_type, avoid_function_literals_in_foreach_calls, avoid_print, must_be_immutable, unused_local_variable
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,6 @@ import 'package:socail/Screens/AllComments.dart';
 import 'package:socail/Screens/AllLikes.dart';
 import 'package:socail/Widgets/CustomSnackbar.dart';
 import 'package:socail/Widgets/CustomText.dart';
-import 'package:socail/Widgets/CustomTextField.dart';
 import 'package:socail/Widgets/ImageViewer.dart';
 
 import '../Widgets/IndiComment.dart';
