@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:socail/Models/Comment.dart';
-import 'package:socail/Models/User.dart';
 
 import '../Network/UserService.dart';
 import '../const.dart';

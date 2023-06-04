@@ -40,8 +40,13 @@ class _FriendChipState extends State<FriendChip> {
       return Container();
     }
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.all(5),
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      decoration: BoxDecoration(
+        color: container,
+      ),
       child: ListTile(
+          contentPadding: const EdgeInsets.all(0),
           leading: CircleAvatar(
             radius: 27,
             child: CircleAvatar(

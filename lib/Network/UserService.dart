@@ -60,7 +60,6 @@ class UserService {
     String firebaseId = FirebaseAuth.instance.currentUser!.uid;
     var response = await http
         .get(Uri.parse('${base_url}/user/getUser/${userFId ?? firebaseId}'));
-    print('res is ${response.body}');
     if (response.body != '') {
       UserObj user = UserObj.fromJson(json.decode(response.body));
       return user;

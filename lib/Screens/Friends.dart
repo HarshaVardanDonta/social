@@ -108,6 +108,9 @@ class _FriendsState extends State<Friends> with TickerProviderStateMixin {
               ),
             ),
           ),
+          const SizedBox(
+            height: 10,
+          ),
           Expanded(
             child: TabBarView(
               controller: tabController,

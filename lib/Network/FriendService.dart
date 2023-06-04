@@ -13,7 +13,6 @@ class FriendService {
       Uri.parse('$base_url/friend/add'),
       body: data,
     );
-    print(response.body);
     return response.body;
   }
 
@@ -41,7 +40,6 @@ class FriendService {
       Uri.parse('$base_url/friend/acceptRequest'),
       body: data,
     );
-    print("Accept Request: ${response.body}");
   }
 
   static Future<List<Friend>> getFriends(String userId) async {

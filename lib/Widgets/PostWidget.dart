@@ -12,10 +12,12 @@ import 'package:socail/Network/PostService.dart';
 import 'package:socail/Network/UserService.dart';
 import 'package:socail/Screens/AllComments.dart';
 import 'package:socail/Screens/AllLikes.dart';
+import 'package:socail/Screens/InidPosr.dart';
 import 'package:socail/Widgets/CustomSnackbar.dart';
 import 'package:socail/Widgets/CustomText.dart';
 import 'package:socail/Widgets/CustomTextField.dart';
 import 'package:socail/Widgets/ImageViewer.dart';
+import 'package:video_player/video_player.dart';
 
 import '../const.dart';
 
@@ -77,8 +79,23 @@ class _PostWidgetState extends State<PostWidget> {
     super.initState();
   }
 
+  late VideoPlayerController _controller;
+  bool videoInit = false;
+
+  initVidController() {
+    _controller = VideoPlayerController.network(
+      widget.url,
+    )..initialize().then((_) {});
+    setState(() {
+      videoInit = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!videoInit) {
+      initVidController();
+    }
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (!gotLikes) {
       getDbUser();
@@ -120,26 +137,43 @@ class _PostWidgetState extends State<PostWidget> {
                       SizedBox(
                         width: 10,
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            content: widget.title,
-                            color: text,
-                            size: 20,
-                            weight: FontWeight.bold,
-                          ),
-                          CustomText(
-                            content: widget.desc,
-                            color: text,
-                            size: 15,
-                          ),
-                        ],
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => IndiPost(
+                                url: widget.url,
+                                desc: widget.desc,
+                                id: widget.id,
+                                title: widget.title,
+                                user: widget.user,
+                                userName: widget.userName,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              content: widget.title,
+                              color: text,
+                              size: 20,
+                              weight: FontWeight.bold,
+                            ),
+                            CustomText(
+                              content: widget.desc,
+                              color: text,
+                              size: 15,
+                            ),
+                          ],
+                        ),
                       )
                     ],
                   ),
                   CustomText(
-                    content: 'By - ${widget.userName}',
+                    content: 'u/${widget.userName}',
                     color: text,
                   ),
                   SizedBox(
@@ -156,29 +190,139 @@ class _PostWidgetState extends State<PostWidget> {
                           width: 1,
                         ),
                       ),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ImageViewer(
-                                        url: widget.url,
-                                      )));
-                        },
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: FadeInImage.assetNetwork(
-                            image: widget.url,
-                            fit: BoxFit.cover,
-                            placeholder: 'assets/tom.jpg',
-                            placeholderFit: BoxFit.cover,
-                            fadeInCurve: Curves.easeIn,
-                            fadeInDuration: Duration(milliseconds: 400),
-                            fadeOutCurve: Curves.easeOut,
-                            fadeOutDuration: Duration(milliseconds: 400),
-                          ),
-                        ),
-                      ),
+                      child: (widget.url.contains('mp4'))
+                          ? Stack(
+                              children: [
+                                Center(
+                                  child: AspectRatio(
+                                      aspectRatio:
+                                          _controller.value.aspectRatio,
+                                      child: VideoPlayer(_controller)),
+                                ),
+                                Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(10),
+                                            bottomRight: Radius.circular(10),
+                                          ),
+                                          gradient: LinearGradient(
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                              colors: [
+                                                Colors.black.withOpacity(0.8),
+                                                Colors.black.withOpacity(0.0)
+                                              ])),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          // video progress indicator
+                                          VideoProgressIndicator(
+                                            _controller,
+                                            allowScrubbing: true,
+                                            colors: VideoProgressColors(
+                                              playedColor: container,
+                                              bufferedColor:
+                                                  Colors.white.withOpacity(0.5),
+                                              backgroundColor:
+                                                  back.withOpacity(0.2),
+                                            ),
+                                          ),
+                                          IconButton(
+                                              onPressed: () {
+                                                // _controller.seekTo(
+                                                //     Duration(seconds: 0));
+                                                setState(() {
+                                                  if (_controller
+                                                      .value.isPlaying) {
+                                                    _controller.pause();
+                                                  } else {
+                                                    _controller.play();
+                                                    _controller.addListener(() {
+                                                      if (_controller
+                                                              .value.position ==
+                                                          _controller
+                                                              .value.duration) {
+                                                        _controller.seekTo(
+                                                            Duration(
+                                                                seconds: 0));
+                                                        _controller.pause();
+                                                        setState(() {});
+                                                      }
+                                                    });
+                                                  }
+                                                });
+                                              },
+                                              icon: Icon(
+                                                (_controller.value.isPlaying)
+                                                    ? Icons.pause
+                                                    : Icons.play_arrow,
+                                                color: text,
+                                                size: 30,
+                                              )),
+                                        ],
+                                      ),
+                                    ))
+                              ],
+                            )
+                          : GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ImageViewer(
+                                              url: widget.url,
+                                            )));
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: FadeInImage.assetNetwork(
+                                  imageErrorBuilder: (context, error, stack) {
+                                    return Container(
+                                      height: 400,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: back,
+                                        border: Border.all(
+                                          color: text,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.error,
+                                            color: text,
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          CustomText(
+                                            content:
+                                                'Firebase Storage Quota Exceeded',
+                                            color: text,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  image: widget.url,
+                                  fit: BoxFit.cover,
+                                  placeholder: 'assets/tom.jpg',
+                                  placeholderFit: BoxFit.cover,
+                                  fadeInCurve: Curves.easeIn,
+                                  fadeInDuration: Duration(milliseconds: 400),
+                                  fadeOutCurve: Curves.easeOut,
+                                  fadeOutDuration: Duration(milliseconds: 400),
+                                ),
+                              ),
+                            ),
                     ),
                   ),
                   SizedBox(

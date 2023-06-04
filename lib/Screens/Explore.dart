@@ -5,7 +5,6 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:socail/Screens/InidPosr.dart';
 import 'package:socail/Widgets/CustomText.dart';
-import 'package:socail/Widgets/CustomTextField.dart';
 
 import '../Models/Post.dart';
 import '../Network/PostService.dart';
@@ -149,8 +148,15 @@ class _ExploreState extends State<Explore> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              IndiPost(post: feed[index])));
+                                          builder: (context) => IndiPost(
+                                                id: feed[index].id!,
+                                                title: feed[index].title,
+                                                desc: feed[index].desc,
+                                                url: feed[index].imageUrl,
+                                                user: feed[index].byUser,
+                                                userName:
+                                                    feed[index].byUserName,
+                                              )));
                                 },
                                 child: Stack(
                                   children: [

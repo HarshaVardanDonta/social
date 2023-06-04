@@ -6,18 +6,17 @@ import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:socail/Models/Friend.dart';
 import 'package:socail/Models/Post.dart';
 import 'package:socail/Network/Notification.dart';
 import 'package:socail/Network/PostService.dart';
 import 'package:socail/Screens/CameraScreen.dart';
-import 'package:socail/Widgets/CustomButton.dart';
+import 'package:socail/Screens/VideoScreen.dart';
 import 'package:socail/Widgets/CustomSnackbar.dart';
 import 'package:socail/Widgets/CustomText.dart';
-import 'package:socail/Widgets/CustomTextField.dart';
 import 'package:socail/const.dart';
+import 'package:video_player/video_player.dart';
 
 import '../Models/User.dart';
 import '../Network/FriendService.dart';
@@ -36,6 +35,8 @@ bool init = false;
 
 bool imageCaptured = false;
 late XFile image;
+late VideoPlayerController _controller;
+bool isVideoPlaying = false;
 
 class _AddPostState extends State<AddPost> {
   TextEditingController titleController = TextEditingController();
@@ -137,59 +138,186 @@ class _AddPostState extends State<AddPost> {
                                 child: imageCaptured
                                     ? ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
-                                        child: Image.file(
-                                          File(image.path),
-                                          fit: BoxFit.cover,
-                                        ),
+                                        child: (image.path.contains('mp4'))
+                                            ? Stack(
+                                                children: [
+                                                  Center(
+                                                    child: AspectRatio(
+                                                        aspectRatio: _controller
+                                                            .value.aspectRatio,
+                                                        child: VideoPlayer(
+                                                            _controller)),
+                                                  ),
+                                                  Positioned(
+                                                      bottom: 0,
+                                                      left: 0,
+                                                      right: 0,
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                            gradient: LinearGradient(
+                                                                begin: Alignment
+                                                                    .bottomCenter,
+                                                                end: Alignment.topCenter,
+                                                                colors: [
+                                                              Colors.black
+                                                                  .withOpacity(
+                                                                      0.8),
+                                                              Colors.black
+                                                                  .withOpacity(
+                                                                      0.0)
+                                                            ])),
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            // video progress indicator
+                                                            VideoProgressIndicator(
+                                                              _controller,
+                                                              allowScrubbing:
+                                                                  true,
+                                                              colors:
+                                                                  VideoProgressColors(
+                                                                playedColor:
+                                                                    text,
+                                                                bufferedColor: Colors
+                                                                    .white
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                backgroundColor:
+                                                                    back.withOpacity(
+                                                                        0.2),
+                                                              ),
+                                                            ),
+                                                            IconButton(
+                                                                onPressed: () {
+                                                                  _controller.seekTo(
+                                                                      Duration(
+                                                                          seconds:
+                                                                              0));
+                                                                  setState(() {
+                                                                    if (_controller
+                                                                        .value
+                                                                        .isPlaying) {
+                                                                      _controller
+                                                                          .pause();
+                                                                    } else {
+                                                                      _controller
+                                                                          .play();
+                                                                    }
+                                                                  });
+                                                                },
+                                                                icon: Icon(
+                                                                  (_controller
+                                                                          .value
+                                                                          .isPlaying)
+                                                                      ? Icons
+                                                                          .pause
+                                                                      : Icons
+                                                                          .play_arrow,
+                                                                  color: text,
+                                                                  size: 30,
+                                                                )),
+                                                          ],
+                                                        ),
+                                                      ))
+                                                ],
+                                              )
+                                            : Image.file(
+                                                File(image.path),
+                                                fit: BoxFit.cover,
+                                              ),
                                       )
-                                    : InkWell(
-                                        onTap: () async {
-                                          FocusScope.of(context).unfocus();
-                                          await Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          CamerScreen()))
-                                              .then((value) {
-                                            if (value != null) {
-                                              setState(() {
-                                                image = value;
-                                                imageCaptured = true;
-                                                // loading = true;
+                                    : Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          InkWell(
+                                            onTap: () async {
+                                              FocusScope.of(context).unfocus();
+                                              await Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              CamerScreen()))
+                                                  .then((value) {
+                                                if (value != null) {
+                                                  setState(() {
+                                                    image = value;
+                                                    imageCaptured = true;
+                                                    // loading = true;
+                                                  });
+                                                }
                                               });
-                                            }
-                                          });
-                                        },
-                                        child: Center(
-                                            child: Icon(
-                                          Icons.add_a_photo,
-                                          color: text,
-                                          size: 40,
-                                        )),
+                                            },
+                                            child: Center(
+                                                child: Icon(
+                                              Icons.add_a_photo,
+                                              color: text,
+                                              size: 40,
+                                            )),
+                                          ),
+                                          InkWell(
+                                            onTap: () async {
+                                              FocusScope.of(context).unfocus();
+
+                                              await Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              VideoScreen()))
+                                                  .then((value) async {
+                                                if (value != null) {
+                                                  setState(() {
+                                                    image = value;
+                                                    imageCaptured = true;
+                                                  });
+                                                } 
+
+                                                _controller =
+                                                    VideoPlayerController.file(
+                                                        File(image.path))
+                                                      ..initialize().then((_) {
+                                                        setState(() {});
+                                                      });
+                                                setState(() {
+                                                  _controller.initialize();
+                                                });
+                                              });
+                                            },
+                                            child: Center(
+                                                child: Icon(
+                                              Icons.video_collection,
+                                              color: text,
+                                              size: 40,
+                                            )),
+                                          ),
+                                        ],
                                       ),
                               ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    imageCaptured = false;
-                                    image = XFile('');
-                                  });
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    CustomText(
-                                      content: "Remove",
-                                      color: text,
-                                      size: 20,
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Icon(Icons.delete, color: text, size: 20),
-                                  ],
+                              if (imageCaptured)
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      imageCaptured = false;
+                                      image = XFile('');
+                                    });
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      CustomText(
+                                        content: "Remove",
+                                        color: text,
+                                        size: 20,
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Icon(Icons.delete, color: text, size: 20),
+                                    ],
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ),
@@ -210,51 +338,104 @@ class _AddPostState extends State<AddPost> {
                                 });
                                 FirebaseStorage _storage =
                                     FirebaseStorage.instance;
-                                await _storage
-                                    .ref(
-                                        '${currentUser!.uid}/${DateTime.now().millisecondsSinceEpoch}')
-                                    .putFile(File(image.path))
-                                    .then((value) async {
-                                  String url = await value.ref.getDownloadURL();
-                                  var res = await PostService.createPost(Post(
-                                    byUserName: currentUser.displayName!,
-                                    title: titleController.text,
-                                    desc: descController.text,
-                                    imageUrl: url,
-                                    byUser: currentUser.uid,
-                                  ));
+                                if (image.path.contains('mp4')) {
+                                  await _storage
+                                      .ref(
+                                          '${currentUser!.uid}/${DateTime.now().millisecondsSinceEpoch}.mp4')
+                                      .putFile(File(image.path))
+                                      .then((value) async {
+                                    String url =
+                                        await value.ref.getDownloadURL();
+                                    var res = await PostService.createPost(Post(
+                                      byUserName: currentUser.displayName!,
+                                      title: titleController.text,
+                                      desc: descController.text,
+                                      imageUrl: url,
+                                      byUser: currentUser.uid,
+                                    ));
 
-                                  if (res) {
-                                    setState(() {
-                                      titleController.text = '';
-                                      descController.text = '';
-                                      imageCaptured = false;
-                                      loading = false;
-                                    });
-                                    print(existingFriends);
-                                    existingFriends.forEach((element) async {
-                                      String token = await UserService.getToken(
-                                          fid: (currentUser.uid ==
-                                                  element.userId)
-                                              ? element.friendUserId
-                                              : element.userId);
-                                      await sendPushMEssage(
-                                          token,
-                                          currentUser.displayName!,
-                                          "${currentUser.displayName!} added a new post");
-                                    });
-                                    showSnack(
-                                        content: 'Post Added',
-                                        context: context);
-                                  } else {
-                                    setState(() {
-                                      loading = false;
-                                    });
-                                    showSnack(
-                                        content: 'Something went wrong',
-                                        context: context);
-                                  }
-                                });
+                                    if (res) {
+                                      setState(() {
+                                        titleController.text = '';
+                                        descController.text = '';
+                                        imageCaptured = false;
+                                        loading = false;
+                                      });
+                                      print(existingFriends);
+                                      existingFriends.forEach((element) async {
+                                        String token =
+                                            await UserService.getToken(
+                                                fid: (currentUser.uid ==
+                                                        element.userId)
+                                                    ? element.friendUserId
+                                                    : element.userId);
+                                        await sendPushMEssage(
+                                            token,
+                                            currentUser.displayName!,
+                                            "${currentUser.displayName!} added a new video");
+                                      });
+                                      showSnack(
+                                          content: 'Post Added',
+                                          context: context);
+                                    } else {
+                                      setState(() {
+                                        loading = false;
+                                      });
+                                      showSnack(
+                                          content: 'Something went wrong',
+                                          context: context);
+                                    }
+                                  });
+                                } else {
+                                  await _storage
+                                      .ref(
+                                          '${currentUser!.uid}/${DateTime.now().millisecondsSinceEpoch}')
+                                      .putFile(File(image.path))
+                                      .then((value) async {
+                                    String url =
+                                        await value.ref.getDownloadURL();
+                                    var res = await PostService.createPost(Post(
+                                      byUserName: currentUser.displayName!,
+                                      title: titleController.text,
+                                      desc: descController.text,
+                                      imageUrl: url,
+                                      byUser: currentUser.uid,
+                                    ));
+
+                                    if (res) {
+                                      setState(() {
+                                        titleController.text = '';
+                                        descController.text = '';
+                                        imageCaptured = false;
+                                        loading = false;
+                                      });
+                                      print(existingFriends);
+                                      existingFriends.forEach((element) async {
+                                        String token =
+                                            await UserService.getToken(
+                                                fid: (currentUser.uid ==
+                                                        element.userId)
+                                                    ? element.friendUserId
+                                                    : element.userId);
+                                        await sendPushMEssage(
+                                            token,
+                                            currentUser.displayName!,
+                                            "${currentUser.displayName!} added a new post");
+                                      });
+                                      showSnack(
+                                          content: 'Post Added',
+                                          context: context);
+                                    } else {
+                                      setState(() {
+                                        loading = false;
+                                      });
+                                      showSnack(
+                                          content: 'Something went wrong',
+                                          context: context);
+                                    }
+                                  });
+                                }
+
                                 setState(() {
                                   loading = false;
                                 });

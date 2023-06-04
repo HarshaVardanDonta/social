@@ -6,19 +6,21 @@ import 'package:socail/const.dart';
 
 import '../Widgets/CustomText.dart';
 
-class CamerScreen extends StatefulWidget {
-  const CamerScreen({super.key});
+class VideoScreen extends StatefulWidget {
+  const VideoScreen({super.key});
 
   @override
-  State<CamerScreen> createState() => _CamerScreenState();
+  State<VideoScreen> createState() => _VideoScreenState();
 }
 
-class _CamerScreenState extends State<CamerScreen> {
+class _VideoScreenState extends State<VideoScreen> {
   CameraController? controller;
   late List<CameraDescription> _cameras;
   bool init = false;
   late XFile image;
   bool isFrontCam = false;
+  bool isRecStart = false;
+  bool isRecComplete = false;
 
   initCam() async {
     _cameras = await availableCameras();
@@ -72,7 +74,7 @@ class _CamerScreenState extends State<CamerScreen> {
               if (controller!.value.isInitialized)
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10),
                     height: controller!.value.previewSize?.height,
                     width: controller!.value.previewSize?.width,
                     child: ClipRRect(
@@ -94,12 +96,12 @@ class _CamerScreenState extends State<CamerScreen> {
                   ),
                 ),
               Container(
-                margin: const EdgeInsets.all(10),
-                padding: const EdgeInsets.all(10),
+                margin: EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
                 // height: 100,
                 decoration: BoxDecoration(
                     color: container,
-                    borderRadius: const BorderRadius.all(Radius.circular(10))),
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -114,12 +116,22 @@ class _CamerScreenState extends State<CamerScreen> {
                         )),
                     IconButton(
                         onPressed: () async {
-                          try {
-                            image = await controller!.takePicture();
+                          if (isRecStart) {
+                            image = await controller!.stopVideoRecording();
                             Navigator.pop(context, image);
-                          } catch (e) {
-                            print(e);
+                          } else {
+                            await controller!.startVideoRecording();
+                            setState(() {
+                              isRecStart = true;
+                            });
                           }
+
+                          // try {
+                          //   image = await controller!.takePicture();
+                          //   Navigator.pop(context, image);
+                          // } catch (e) {
+                          //   print(e);
+                          // }
                         },
                         icon: Icon(
                           Icons.camera,
